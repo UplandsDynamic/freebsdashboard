@@ -14,7 +14,7 @@ YOUR SYSTEM MAY BE DESTROYED - OR WORSE - TRANSFORMED INTO A BLUEBERRY CRUMBLE.
 DESCRIPTION
 -----------
 
-FreeBSDashboard is web-gui dashboard to administer FreeBSD systems.
+FreeBSDashboard is a web-gui dashboard to administer FreeBSD systems.
 
 The application uses Python 3.5 (in a virtual environment), and is built using
 the Python Django framework and jQuery.

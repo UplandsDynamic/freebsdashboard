@@ -33,11 +33,21 @@
             <div class="panel panel-primary">
                 <div class="panel-heading">Authentication Console</div>
                 <div class="panel-body">
+                    <div class="PROTOTYPE alert alert-danger">
+                        This is <span style="font-style:italic;font-weight:bold;">
+                        an early prototype demo</span> of the ZFS Snapshot section of a FreeBSD administration web-giu.
+                        The source code is available <a href="https://github.com/ZWS2014/freebsdashboard"
+                                                        target="_blank">from github</a>.
+                    </div>
                     {% block the_body %}{% endblock %}
                 </div>
                 <div class="panel-footer">
                     {% if footer_text %}{{ footer_text }}{% else %}{{ default_footer_text }}{% endif %}
                 </div>
+            </div>
+            <div class="out-of-panel-footer">
+                <small>Version: Alpha 1.0 | (c)2016 Dan Bright, <a href="
+                https://www.aninstanceofme.com">AnInstanceOfMe.com</a></small>
             </div>
         </div>
     </div>

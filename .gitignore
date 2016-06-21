@@ -1,0 +1,6 @@
+*.pyc
+*.sqlite3
+*.idea*
+*.log
+*/web/
+*.git_notes

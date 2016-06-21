@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><!-- Loads static path files -->
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'ZFSAdmin/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'ZFSAdmin/css/style.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'ZFSAdmin/css/jquery-ui.min.css' %}">
+    <script src="{% static 'ZFSAdmin/js/jquery-2.2.3.min.js' %}"></script>
+    <script src="{% static 'ZFSAdmin/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'ZFSAdmin/js/jquery-ui.min.js' %}"></script>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <!-- header -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#topNavBar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{% url 'ZFSAdmin:index' %}">{{ default_site_name }}</a>
+        </div>
+        <!-- nav bar items that hide when collapsed -->
+        <div class="collapse navbar-collapse" id="topNavBar">
+            <ul class="nav navbar-nav">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">System<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{% url 'ZFSAdmin:index' %}">ZFS Snapshot Admin</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li class="">
+
+
+                    <a data-toggle="modal" data-target="#timezoneModal">
+                        <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
+                        {{ request.session.django_timezone }}
+                    </a>
+
+                </li>
+                <!-- Modal -->
+                <div class="modal fade" id="timezoneModal" tabindex="-1" role="dialog"
+                     aria-labelledby="timezoneModalLabel">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                        aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="timezoneModalLabel">Select Timezone</h4>
+                            </div>
+                            <div class="modal-body">
+                                <p>The current display timezone is set
+                                    to {{ request.session.django_timezone }}.</p>
+                                <p>Note, this may differ from the server timezone.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                <a class="btn btn-primary" href="{% url 'set_timezone' %}">Change Display Timezone</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if user.is_authenticated %}
+                    <li class="">
+                        <a href="{% url 'logout' %}?next={{ request.path }}">
+                            <span class="glyphicon glyphicon-log-out"></span> Logout
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="">
+                        <a href="{% url 'login' %}?next={{ request.path }}">
+                            <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span> Login
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
+            <div id="main_body" class="panel panel-primary">
+                <div class="panel-heading">ZFS Snapshot View</div>
+                <div class="panel-body">
+                    <div class="PROTOTYPE alert alert-danger">
+                        This is <span style="font-style:italic;font-weight:bold;">
+                        an early prototype demo</span> of the ZFS Snapshot section of a FreeBSD administration web-giu.
+                    </div>
+                    {% if message %}
+                        <div class="alert alert-info message">{{ message }}</div>
+                    {% endif %}
+                    {% block the_body %}{% endblock %}
+                </div>
+                <div class="panel-footer">
+                    {% if footer_text %}{{ footer_text }}{% else %}{{ default_footer_text }}{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% block scripts %}{% endblock %}
+<script>
+    $(document).ready(function () {
+        function init() {
+            /* slide in */
+            $('#main_body').hide();
+            $('#main_body').show("fade", 1500);
+        }
+
+        /* RUN THE SCRIPTS */
+        init();
+    });
+</script>
+</body>
+</html>

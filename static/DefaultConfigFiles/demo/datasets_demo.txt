@@ -1,0 +1,17 @@
+ZaziorkDataCenter
+ZaziorkDataCenter/ZaziorkData
+ZaziorkDataCenter/ZaziorkHome
+zroot
+zroot/ROOT
+zroot/ROOT/default
+zroot/tmp
+zroot/usr
+zroot/usr/home
+zroot/usr/ports
+zroot/usr/src
+zroot/var
+zroot/var/audit
+zroot/var/crash
+zroot/var/log
+zroot/var/mail
+zroot/var/tmp

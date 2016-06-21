@@ -1,0 +1,30 @@
+@font-face {
+    font-family: 'Roboto-Bold';
+    src: url('../fonts/Roboto-Bold.ttf');
+}
+
+body {
+    /* background: white url("images/torch_rose_2.jpg");*/
+    background-color: white;
+    font-family: 'Roboto-Bold', monospace;
+}
+
+/* Navbar overrides */
+
+.navbar {
+    border-radius: 0;
+}
+
+.navbar-brand {
+    font-family: 'Roboto-Bold', monospace;
+}
+
+table.snapshot-table {
+    text-transform: capitalize;
+}
+
+div.take_snapshot_form ul {
+    list-style: none;
+}
+
+.no-close .ui-dialog-titlebar-close {display: none }

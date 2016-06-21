@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><!-- Loads static path files -->
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'ZFSAdmin/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'ZFSAdmin/css/style.css' %}">
+    <script src="{% static 'ZFSAdmin/js/jquery-2.2.3.min.js' %}"></script>
+    <script src="{% static 'ZFSAdmin/js/bootstrap.min.js' %}"></script>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <!-- header -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#topNavBar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{% url 'ZFSAdmin:index' %}">{{ default_site_name }}</a>
+        </div>
+        <!-- nav bar items that hide when collapsed -->
+        <div class="collapse navbar-collapse" id="topNavBar">
+            {# Nothing to see here ... #}
+        </div>
+    </div>
+</nav>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
+            <div class="panel panel-primary">
+                <div class="panel-heading">Authentication Console</div>
+                <div class="panel-body">
+                    {% block the_body %}{% endblock %}
+                </div>
+                <div class="panel-footer">
+                    {% if footer_text %}{{ footer_text }}{% else %}{{ default_footer_text }}{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% block scripts %}{% endblock %}
+</body>
+</html>

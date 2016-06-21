@@ -1,0 +1,12 @@
+body {
+    /* background: white url("images/torch_rose_2.jpg");*/
+    backgound-color: white;
+}
+
+.navbar {
+    border-radius: 0;
+}
+
+.navbar-brand {
+      font-family: 'Merriweather', serif;
+}

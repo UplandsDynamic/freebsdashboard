@@ -1,0 +1,59 @@
+{% extends "registration/base.html" %}
+
+{% block the_body %}
+    {% if form.errors %}
+        <div class="alert alert-danger" role="alert">
+            Your username and password didn't match. Please try again.
+        </div>
+    {% endif %}
+
+    {% if next %}
+        {% if user.is_authenticated %}
+            <div class="alert alert-warning" role="alert">
+                Your account doesn't have access to this page. To proceed,
+                please login with an account that has access.
+            </div>
+        {% else %}
+            <div class="alert alert-warning" role="alert">
+                Please login to continue ...
+            </div>
+        {% endif %}
+    {% endif %}
+    <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-xs-1 col-sm-1 col-md-1 col-md-lg-1">
+                    {{ form.username.label_tag }}
+                </div>
+                <div class="col-xs-11 col-sm-11 col-md-11 col-md-lg-11">
+                    {{ form.username }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-1 col-sm-1 col-md-1 col-md-lg-1">
+                    {{ form.password.label_tag }}
+                </div>
+                <div class="col-xs-11 col-sm-11 col-md-11 col-md-lg-11">
+                    {{ form.password }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-1 col-sm-1 col-md-1 col-md-lg-1">
+                    <input type="submit" value="login"/>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-1 col-sm-1 col-md-1 col-md-lg-1">
+                    <input type="hidden" name="next" value="{{ next }}"/>
+                </div>
+            </div>
+            <div class="row" style="margin-top:1em;">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
+                    <span><a href="{% url 'password_reset' %}">Lost password?</a></span>
+                </div>
+            </div>
+        </div>
+    </form>
+
+{% endblock %}

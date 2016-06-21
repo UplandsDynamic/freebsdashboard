@@ -47,7 +47,7 @@ def update_zfs_data(datatype=None):
 	elif datatype == 'DATASETS':
 		# RETRIEVES LATEST ZFS DATASET NAMES DATA & UPDATES MODEL
 		std_out = subprocess.run(
-			['{}static/DefaultConfigFiles/s{}'.format(settings.PROJECT_ROOT, settings.SYSTEM_CALL_SCRIPT_NAME),
+			['{}static/DefaultConfigFiles/{}'.format(settings.PROJECT_ROOT, settings.SYSTEM_CALL_SCRIPT_NAME),
 			 'datasets'],
 			stdout=subprocess.PIPE, universal_newlines=True).stdout
 		datasets = parse_strings(stdout_str=std_out, data_type='datasets') if std_out else None

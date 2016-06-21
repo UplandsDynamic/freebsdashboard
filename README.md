@@ -7,10 +7,14 @@ ALPHA 1.0, PROTOTYPE DEMO. NOT FOR PRODUCTION USE!
 
 This version just has a ZFS Administration section, with basic functionality.
 
+DO NOT INSTALL AND TEST THIS ON A SYSTEM UPON WHICH THERE IS DATA THAT
+MEANS ANYTHING TO YOU! THIS IS A PROTOTYPE - DATALOSS MAY BE INCURRED, AND
+YOUR SYSTEM MAY BE DESTROYED - OR WORSE - TRANSFORMED INTO A BLUEBERRY CRUMBLE.
+
 DESCRIPTION
 -----------
 
-A web-gui dashboard to administer FreeBSD systems.
+FreeBSDashboard is web-gui dashboard to administer FreeBSD systems.
 
 The application uses Python 3.5 (in a virtual environment), and is built using
 the Python Django framework and jQuery.
@@ -23,6 +27,10 @@ or system data are applied directly to the files/data on the system.
 
 Configurations are NOT stored in the application database, which means manual changes
 to system configuration files would not be overwritten by the application (and vice-versa).
+
+To test the gui dashboard without installation, try the live prototype demo at:
+
+https://freebsdashboard.aninstanceofme.com:8443
 
 HOW TO INSTALL
 -------------------

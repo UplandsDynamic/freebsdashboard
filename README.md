@@ -28,6 +28,9 @@ or system data are applied directly to the files/data on the system.
 Configurations are NOT stored in the application database, which means manual changes
 to system configuration files would not be overwritten by the application (and vice-versa).
 
+DEMO
+----
+
 To test the gui dashboard without installation, try the live prototype demo at:
 
 https://freebsdashboard.aninstanceofme.com:8443

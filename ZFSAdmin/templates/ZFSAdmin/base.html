@@ -88,7 +88,7 @@
     <div class="row">
         <div class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
             <div id="main_body" class="panel panel-primary">
-                <div class="panel-heading">ZFS Snapshot View</div>
+                <div class="panel-heading">ZFS Administration</div>
                 <div class="panel-body">
                     <div class="PROTOTYPE alert alert-danger">
                         This is <span style="font-style:italic;font-weight:bold;">
@@ -97,7 +97,7 @@
                         from github</a>.
                     </div>
                     {% if message %}
-                        <div class="alert alert-info message">{{ message }}</div>
+                        <div class="alert alert-danger message">{{ message }}</div>
                     {% endif %}
                     {% block the_body %}{% endblock %}
                 </div>

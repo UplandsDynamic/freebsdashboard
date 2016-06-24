@@ -15,3 +15,6 @@ zroot/var/crash
 zroot/var/log
 zroot/var/mail
 zroot/var/tmp
+
+zroot/test
+ZaziorkDataCenter/ZaziorkTe_-/ste/r

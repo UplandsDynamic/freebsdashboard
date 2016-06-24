@@ -1,11 +1,12 @@
 from django.db import models
 
 
-class ZfsDatasets(models.Model):
-	dataset_name = models.CharField(max_length=255)
+class ZfsFileSystems(models.Model):
+	filesystem_name = models.CharField(max_length=255)
+	zpool = models.CharField(max_length=255, null=True)
 
 	def __str__(self):
-		return self.dataset_name
+		return self.filesystem_name
 
 
 class ZfsSnapshot(models.Model):

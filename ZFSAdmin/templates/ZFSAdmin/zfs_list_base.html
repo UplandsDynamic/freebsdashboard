@@ -10,7 +10,7 @@
                         aria-haspopup="true"
                         aria-expanded="false"
                         id="dataset-filter">
-                    Filter Dataset <span class="caret"></span>
+                    Filter File System <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
                     <li><a href="{% url 'ZFSAdmin:index' %}">All</a></li>
@@ -19,6 +19,7 @@
                     {% endfor %}
                 </ul>
             </div>
+            <span><a class="btn btn-primary" id="create_filesystems">Create File Systems</a></span>
             <span><a class="btn btn-primary" id="take_snapshot">Take Snapshot</a></span>
             <span><a class="btn btn-danger" id="delete_selected">Delete Selected</a></span>
         </div>
@@ -61,18 +62,21 @@
                 /* and hide the buttons to stop any tomfoolery until status is known */
                 $('#button_div').hide();
                 /* start the listeners */
-                UpdateButtonListener();
+                ButtonListener();
                 /* run checker on page load in case currently running task in progress */
-                TaskUpdateStatusChecker(page_load='true');
+                TaskUpdateStatusChecker(page_load = 'true');
             }
 
-            function UpdateButtonListener() {
+            function ButtonListener() {
                 /* button listener */
                 document.getElementById("update_list").onclick = function () {
                     UpdateSnapshots();
                 };
                 document.getElementById("take_snapshot").onclick = function () {
                     window.location.replace("{% url 'ZFSAdmin:take_snapshot' %}");
+                };
+                document.getElementById("create_filesystems").onclick = function () {
+                    window.location.replace("{% url 'ZFSAdmin:create_filesystems' %}");
                 };
                 document.getElementById("delete_selected").onclick = function () {
                     var toDelete = [];
@@ -163,21 +167,35 @@
                             }
                             /* PAGE JUST (RE)LOADED */
                             else {
-                                $('#snapshot_table').show("slide", 1000);
-                                $('.panel-footer').html('No updates running.');
-                                $('#updating').hide("slide", 1000);
-                                $('#button_div').show("slide", {"direction": "right"}, 1000);
+                                if (data.error == 'true') {
+                                    $('#messages').html(ERROR_MESSAGE + '<div>Error detail: ' + data.error_detail + '</div>');
+                                    setTimeout(function () {
+                                        window.location.replace("{% url 'ZFSAdmin:index' %}");
+                                    }, 7000);
+                                } else {
+                                    $('#snapshot_table').show("slide", 1000);
+                                    $('.panel-footer').html('No updates running.');
+                                    $('#updating').hide("slide", 1000);
+                                    $('#button_div').show("slide", {"direction": "right"}, 1000);
+                                }
                             }
                         }
                         /* IF UPDATE TASK RUNNING */
                         else if (data.updating == 'true') {
-                            $('.panel-footer').html("Updating in progress ...");
-                            $('#updating').show("slide", 1000);
-                            $('#button_div').hide("slide", {"direction": "right"}, 1000);
-                            setTimeout(function () {
-                                /* loop the loop every 7 seconds */
-                                TaskUpdateStatusChecker(page_load = 'false');
-                            }, 7000);
+                            if (data.error == 'true') {
+                                $('#messages').html(ERROR_MESSAGE + '<div>Error detail: ' + data.error_detail + '</div>');
+                                setTimeout(function () {
+                                    window.location.replace("{% url 'ZFSAdmin:index' %}");
+                                }, 7000);
+                            } else {
+                                $('.panel-footer').html("Updating in progress ...");
+                                $('#updating').show("slide", 1000);
+                                $('#button_div').hide("slide", {"direction": "right"}, 1000);
+                                setTimeout(function () {
+                                    /* loop the loop every 7 seconds */
+                                    TaskUpdateStatusChecker(page_load = 'false');
+                                }, 7000);
+                            }
                         }
                     },
                     error: function (xhr, status) {

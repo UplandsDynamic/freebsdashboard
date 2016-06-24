@@ -9,11 +9,14 @@ find $ROOT_DIR -type f -exec chmod 400 {} \;
 find $ROOT_DIR -type d -exec chmod 750 {} \;
 find $ROOT_DIR/web -type f -exec chmod 440 {} \;
 find $ROOT_DIR/web -type d -exec chmod 750 {} \;
+find $ROOT_DIR/static/DefaultConfigFiles/demo -type f -exec chmod 600 {} \;
+find $ROOT_DIR/static/DefaultConfigFiles/demo -type d -exec chmod 700 {} \;
+chmod 0500 $ROOT_DIR/static/DefaultConfigFiles/demo/system_calls_demo.sh;
 find $ROOT_DIR/static/DefaultConfigFiles/manage_uwsgi \
 -type f -name '*.sh' -exec chmod 0500 {} \;
 find $ROOT_DIR/static/DefaultConfigFiles/manage_django_q \
 -type f -name '*.sh' -exec chmod 0500 {} \;
-chmod 500 $ROOT_DIR/static/DefaultConfigFiles/system_calls.sh;
+chmod 0500 $ROOT_DIR/static/DefaultConfigFiles/system_calls.sh;
 chown -R root /usr/local/etc/nginx
 chmod 0640 /usr/local/etc/nginx/nginx.conf;
 chmod -R 0700 /usr/local/etc/nginx/certificates;
@@ -28,5 +31,5 @@ chown freebsdashboard:www /sockets;
 chmod g+s /sockets;
 chmod 0550 /usr/local/etc/rc.d/django_q;
 chown root /usr/local/etc/rc.d/django_q;
-chmod 660 $ROOT_DIR/debug.log;
-chmod +x $ROOT_DIR/static/DefaultConfigFiles/config_django.sh;
+chmod 0660 $ROOT_DIR/debug.log;
+chmod 0700 $ROOT_DIR/static/DefaultConfigFiles/config_django.sh;

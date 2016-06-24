@@ -1,0 +1,70 @@
+{% extends 'ZFSAdmin/base.html' %}
+{% load static %}
+{% block title %}Create ZFS File Systems{% endblock %}
+{% block the_body %}
+    <div class="container-fluid">
+        <div class="row">
+            <div id="existing_filesystems" class="col-xs-3 col-sm-3 col-md-3 col-md-lg-36">
+                <h2>Existing File Systems</h2>
+                <ul>
+                    {% for fs in filesystems %}
+                        <li>
+                            {{ fs }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div id="existing_zpools" class="col-xs-3 col-sm-3 col-md-3 col-md-lg-36">
+                <h2>Existing Zpools</h2>
+                <ul>
+                    {% for zp in zpools %}
+                        <li>
+                            {{ zp }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div id="create_filesystem_form" class="col-xs-6 col-sm-6 col-md-6 col-md-lg-6">
+                {{ form.non_field_errors }}
+                <form role="form" action="{% url 'ZFSAdmin:create_filesystems' %}" method="post">
+                    <div class="form-group create_filesystem_form">
+                        {% csrf_token %}
+                        {{ form.zpools.label }}
+                        {{ form.zpools }}
+                        {{ form.zpools.errors }}
+                        <div class="form_info">
+                            <p>Enter the filesystem names here <strong>
+                                without</strong> prepending the zpool. Separate multiple with a comma.</p>
+                            <p>
+                                <span style="font-style: italic">
+                                For example: If you select the zpool "MyPool", then submit the following
+                                    to create two new filesets in the MyPool dataset:</br>
+                                    MyNewFileSystem, MyNewFileSystem2
+                                </span>
+                            </p>
+                        </div>
+                        {{ form.filesystems }}
+                        {{ form.filesystesms.errors }}
+                    </div>
+                    <input type="submit" class="btn btn-default" value="Submit"/>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script>
+        $(document).ready(function () {
+            function init() {
+                /* slide in */
+                $('#create_filesystem_form').hide();
+                $('#create_filesystem_form').show("slide", {"direction": "right"}, 1000);
+                $('#existing_filesystems').hide();
+                $('#existing_filesystems').show("slide", {"direction": "left"}, 1000);
+            }
+
+            /* RUN THE SCRIPTS */
+            init();
+        });
+    </script>
+{% endblock %}

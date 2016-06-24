@@ -7,7 +7,7 @@ from django.templatetags import l10n
 
 class SnapshotTable(tables.Table):
 	# modify field names if for display
-	dataset = tables.Column(verbose_name='ZFS Dataset')
+	dataset = tables.Column(verbose_name='ZFS File System Dataset')
 	datetime_created = tables.Column(verbose_name='Created', localize=True)
 	retention = tables.Column(verbose_name='Longevity (mins)')
 	name = tables.Column(verbose_name='Delete', orderable=False)

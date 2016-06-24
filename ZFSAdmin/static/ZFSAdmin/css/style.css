@@ -9,6 +9,14 @@ body {
     font-family: 'Roboto-Bold', monospace;
 }
 
+h2 {
+    font-size: 1.2em;
+}
+
+div#existing_filesystems, div#create_filesystem_form_1 {
+    overflow: auto;
+}
+
 /* Navbar overrides */
 
 .navbar {
@@ -23,8 +31,9 @@ table.snapshot-table {
     text-transform: capitalize;
 }
 
-div.take_snapshot_form ul {
+ul {
     list-style: none;
+    padding:0;
 }
 
 .no-close .ui-dialog-titlebar-close {display: none }

@@ -13,6 +13,10 @@ h2 {
     font-size: 1.2em;
 }
 
+div#existing_filesystems, div#create_filesystem_form_1 {
+    overflow: auto;
+}
+
 /* Navbar overrides */
 
 .navbar {

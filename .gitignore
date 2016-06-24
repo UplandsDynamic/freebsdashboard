@@ -4,3 +4,4 @@
 *.log
 */web/
 *.git_notes
+*/migrations/*.py

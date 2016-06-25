@@ -62,12 +62,12 @@ def update_zfs_data(datatype=None):
 		return None
 
 
-def create_filesystems(names=None, zpool=None):
+def create_filesystems(names=None, datasets=None):
 	# CREATES ZFS FILESYSTEMS
 	process_result = []
 	if names:
 		# create namelist from names and zpool string
-		name_list = ['{}/{}'.format(zpool, n) for n in names.replace(' ', '').split(',')]
+		name_list = ['{}/{}'.format(datasets, n) for n in names.replace(' ', '').split(',')]
 		for name in name_list:
 			result = subprocess.run(
 				['{}static/DefaultConfigFiles/{}'.format(settings.PROJECT_ROOT, settings.SYSTEM_CALL_SCRIPT_NAME),

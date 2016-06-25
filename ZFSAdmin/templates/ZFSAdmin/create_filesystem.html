@@ -4,34 +4,24 @@
 {% block the_body %}
     <div class="container-fluid">
         <div class="row">
-            <div id="existing_filesystems" class="col-xs-3 col-sm-3 col-md-3 col-md-lg-3">
-                <h2>Existing File Systems</h2>
-                <ul>
-                    {% for fs in filesystems %}
-                        <li>
-                            {{ fs }}
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
             <form role="form" action="{% url 'ZFSAdmin:create_filesystems' %}" method="post">
                 <div class="form-group create_filesystem_form">
-                    <div id="create_filesystem_form_1" class="col-xs-3 col-sm-3 col-md-3 col-md-lg-3">
+                    <div id="create_filesystem_form_1" class="col-xs-6 col-sm-6 col-md-6 col-md-lg-6">
                         {{ form.non_field_errors }}
                         {% csrf_token %}
-                        <div class="alert alert-info">Select a zpool under which to create your filesystems</div>
-                        {{ form.zpools }}
-                        {{ form.zpools.errors }}
+                        <div class="alert alert-info">Select a dataset under which to create your file systems</div>
+                        {{ form.datasets }}
+                        {{ form.datasets.errors }}
                     </div>
                     <div id="create_filesystem_form_2" class="col-xs-6 col-sm-6 col-md-6 col-md-lg-6">
                         <div class="form_info alert alert-info">
                             <p>Enter the filesystem names here <span style="font-style:italic;
                             font-weight:bold;">
-                                without the prepending zpool</span>.</p>
+                                without the prepending dataset</span>.</p>
                             <p>Separate multiple with a comma.</p>
                             <p>
-                                For example, if you select the zpool "MyPool", submit the following
-                                to create two new file systems in the MyPool dataset:</p>
+                                For example, if you select the dataset "MyPool/MyFileSystem", submit the following
+                                to create two new file systems in the MyPool/MyFileSystem dataset:</p>
                                 <p><span style="font-style: italic"> MyNewFileSystem, MyNewFileSystem2
                                 </span>
                             </p>

@@ -97,18 +97,14 @@ class CreateFileSystems(LoginRequiredMixin, generic.View):
 
 	def get(self, request, *args, **kwargs):
 		existing_filesystems = ZfsFileSystems.objects.all()
-		filesystem_names = existing_filesystems.values_list('filesystem_name', flat=True).order_by('filesystem_name')
-		zpools = set(existing_filesystems.values_list('zpool', flat=True).reverse())
-		choices = [(zp, zp) for zp in zpools]
+		datasets = existing_filesystems.values_list('filesystem_name', flat=True).order_by('filesystem_name')
+		choices = [(ds, ds) for ds in datasets]
 		form = NewFileSystem(choices=choices, initial=choices[0][1])  # n.b. in this case [0] & [1] are same anyway.
-		return render(request, self.template_name, {'form': form, 'filesystems': filesystem_names,
-		                                            'zpools': zpools})
+		return render(request, self.template_name, {'form': form, 'datasets': datasets})
 
 	def post(self, request, *args, **kwargs):
 		existing_filesystems = ZfsFileSystems.objects.all()
-		filesystem_names = existing_filesystems.values_list('filesystem_name', flat=True).order_by('filesystem_name')
-		chosen = [(request.POST.get('zpools'), request.POST.get('zpools'))]
-		existing_filesystems = ZfsFileSystems.objects.all()
+		chosen = [(request.POST.get('datasets'), request.POST.get('datasets'))]
 		form = NewFileSystem(request.POST, choices=chosen)
 		# check valid:
 		if form.is_valid():
@@ -117,7 +113,7 @@ class CreateFileSystems(LoginRequiredMixin, generic.View):
 			                           process_id='filesystem_creator', complete=False)
 			create_filesystems_task = async(engineering.create_filesystems,
 			                                names=form.cleaned_data.get('filesystems'),
-			                                zpool=form.cleaned_data.get('zpools'),
+			                                datasets=form.cleaned_data.get('datasets'),
 			                                hook='ZFSAdmin.hooks.create_filesystems_callback')
 			if create_filesystems_task:
 				# update the taskmanager with the task id
@@ -128,17 +124,14 @@ class CreateFileSystems(LoginRequiredMixin, generic.View):
 				message = 'An error occurred; file systems were not created!'
 				TaskManager.objects.filter(task_id='PENDING_FILESYSTEM_CREATOR').delete()
 				return render(request, self.template_name, {'form': form,
-				                                            'message': message,
-				                                            'existing': existing_filesystems})
+				                                            'message': message})
 		else:
 			message = 'There was a problem submitting the form; filesystems not created.'
-			zpools = set(existing_filesystems.values_list('zpool', flat=True).order_by('zpool'))
-			choices = [(zp, zp) for zp in zpools]
+			datasets = existing_filesystems.values_list('filesystem_name', flat=True).order_by('filesystem_name')
+			choices = [(ds, ds) for ds in datasets]
 			form = NewFileSystem(request.POST, choices=choices, initial=chosen)
 			return render(request, self.template_name, {'form': form,
-			                                            'message': message,
-			                                            'filesystems': filesystem_names,
-			                                            'zpools': zpools})
+			                                            'message': message})
 
 
 @login_required

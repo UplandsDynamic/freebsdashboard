@@ -16,3 +16,11 @@ zroot/var/log
 zroot/var/mail
 zroot/var/tmp
 zroot/test
+<<<<<<< HEAD
+=======
+ZaziorkDataCenter/ZaziorkHome/Tester/Tester3
+ZaziorkDataCenter/ZaziorkHome/Tester/Tester4
+ZaziorkDataCenter/ZaziorkHome/Tester/Tester4/Tester5
+ZaziorkDataCenter/ZaziorkHome/Tester/Tester4/Tester5/Tester6
+ZaziorkDataCenter/test
+>>>>>>> dev

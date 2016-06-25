@@ -1,4 +1,5 @@
 from django import forms
+from django.core.validators import MaxLengthValidator
 
 
 class FileSystemSelection(forms.Form):
@@ -12,7 +13,8 @@ class FileSystemSelection(forms.Form):
 
 class NewFileSystem(forms.Form):
 	datasets = forms.ChoiceField(widget=forms.RadioSelect)
-	filesystems = forms.CharField(widget=forms.Textarea)
+
+	filesystems = forms.CharField(widget=forms.Textarea, validators=[MaxLengthValidator(250)])
 
 	def __init__(self, *args, **kwargs):
 		choices = kwargs.pop('choices', None)

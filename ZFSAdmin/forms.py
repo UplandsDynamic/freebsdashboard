@@ -11,7 +11,7 @@ class FileSystemSelection(forms.Form):
 
 
 class NewFileSystem(forms.Form):
-	zpools = forms.ChoiceField(widget=forms.RadioSelect)
+	datasets = forms.ChoiceField(widget=forms.RadioSelect)
 	filesystems = forms.CharField(widget=forms.Textarea)
 
 	def __init__(self, *args, **kwargs):
@@ -19,6 +19,6 @@ class NewFileSystem(forms.Form):
 		initial = kwargs.pop('initial', None)
 		super(NewFileSystem, self).__init__(*args, **kwargs)
 		self.fields['filesystems'].label = "Select File Systems"
-		self.fields['zpools'].label = "Select Zpool"
-		self.fields['zpools'].choices = choices
-		self.fields['zpools'].initial = initial
+		self.fields['datasets'].label = "Select Dataset"
+		self.fields['datasets'].choices = choices
+		self.fields['datasets'].initial = initial

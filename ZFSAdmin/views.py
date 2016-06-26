@@ -12,10 +12,11 @@ from django.shortcuts import redirect
 from .models import TaskManager, ZfsSnapshot, ZfsFileSystems
 from .tables import SnapshotTable
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 import ZFSAdmin.engineering as engineering
 from .forms import FileSystemSelection, NewFileSystem
 import json
+from django.contrib.auth.decorators import user_passes_test
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 logger = logging.getLogger(__name__)
@@ -50,10 +51,14 @@ class IndexView(LoginRequiredMixin, generic.View):
 		return render(request, self.TEMPLATE_NAME, context)
 
 
-class TakeSnapshotView(LoginRequiredMixin, generic.View):
+class TakeSnapshotView(UserPassesTestMixin, generic.View):
 	TEMPLATE_NAME = 'ZFSAdmin/take_snapshot.html'
 	PENDING_TASK = 'PENDING_SNAPSHOT_TAKER'
 	PROCESS_ID = 'snapshot_taker'
+
+	def test_func(self):
+		# checks user is superuser; if not redirects to login
+		return self.request.user.is_superuser
 
 	def get(self, request, *args, **kwargs):
 		#  note: options list corresponds to [value, label]
@@ -93,10 +98,13 @@ class TakeSnapshotView(LoginRequiredMixin, generic.View):
 			                                            'message': message})
 
 
-class CreateFileSystems(LoginRequiredMixin, generic.View):
-	TEMPLATE_NAME = 'ZFSAdmin/manipulate_filesystems.html'
+class ChangeFileSystems(UserPassesTestMixin, generic.View):
+	TEMPLATE_NAME = 'ZFSAdmin/change_filesystems.html'
 	PENDING_TASK = 'PENDING_FILESYSTEM_CREATOR'
 	PROCESS_ID = 'filesystem_creator'
+
+	def test_func(self):
+		return self.request.user.is_superuser
 
 	def get(self, request, *args, **kwargs):
 		existing_filesystems = ZfsFileSystems.objects.all()
@@ -151,8 +159,9 @@ def update_snapshot_list(request):
 		return JsonResponse({'updating': 'true', 'task_id': update_task})
 
 
-@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def delete_snapshots(request):
+	user = request.user  # necessary for the @user_passes_test decorator
 	pending_task = 'PENDING_SNAPSHOT_DELETE'
 	process_id = 'snapshot_deleter'
 	if request.is_ajax():
@@ -186,8 +195,9 @@ def delete_snapshots(request):
 		return JsonResponse({'success': 'false', 'error': 'Request not Ajax'})
 
 
-@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def delete_filesystem(request):
+	user = request.user  # necessary for the @user_passes_test decorator
 	pending_task = 'PENDING_FILESYSTEM_DELETE'
 	process_id = 'filesystem_deleter'
 	if request.is_ajax():

@@ -11,5 +11,5 @@ urlpatterns = [
 	url(r'^take_snapshot$', views.TakeSnapshotView.as_view(), name='take_snapshot'),
 	url(r'^delete_snapshots', views.delete_snapshots, name='delete_snapshots'),
 	url(r'^delete_filesystem', views.delete_filesystem, name='delete_filesystem'),
-	url(r'^create_filesystems', views.CreateFileSystems.as_view(), name='create_filesystems'),
+	url(r'^change_filesystems', views.ChangeFileSystems.as_view(), name='change_filesystems'),
 ]

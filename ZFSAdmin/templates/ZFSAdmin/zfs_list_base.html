@@ -19,7 +19,7 @@
                     {% endfor %}
                 </ul>
             </div>
-            <span><a class="btn btn-primary" id="create_filesystems">Create / Delete File Systems</a></span>
+            <span><a class="btn btn-primary" id="change_filesystems">Create / Delete File Systems</a></span>
             <span><a class="btn btn-primary" id="take_snapshot">Take Snapshot</a></span>
             <span><a class="btn btn-danger" id="delete_selected">Delete Selected</a></span>
         </div>
@@ -65,6 +65,10 @@
                 ButtonListener();
                 /* run checker on page load in case currently running task in progress */
                 TaskUpdateStatusChecker(page_load = 'true');
+                /* hide delete checkboxes if not logged in as superuser */
+                {% if not request.user.is_superuser %}
+                $('td.name, th.name').hide()
+                {% endif %}
             }
 
             function ButtonListener() {
@@ -75,8 +79,8 @@
                 document.getElementById("take_snapshot").onclick = function () {
                     window.location.replace("{% url 'ZFSAdmin:take_snapshot' %}");
                 };
-                document.getElementById("create_filesystems").onclick = function () {
-                    window.location.replace("{% url 'ZFSAdmin:create_filesystems' %}");
+                document.getElementById("change_filesystems").onclick = function () {
+                    window.location.replace("{% url 'ZFSAdmin:change_filesystems' %}");
                 };
                 document.getElementById("delete_selected").onclick = function () {
                     var toDelete = [];

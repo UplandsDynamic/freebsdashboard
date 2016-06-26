@@ -1,8 +1,6 @@
 import django_tables2 as tables
 from .models import ZfsSnapshot
 from .templatetags import zfsadmin_extras
-from django.templatetags import tz
-from django.templatetags import l10n
 
 
 class SnapshotTable(tables.Table):

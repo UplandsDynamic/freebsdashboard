@@ -59,7 +59,7 @@ class TakeSnapshotView(LoginRequiredMixin, generic.View):
 		#  note: options list corresponds to [value, label]
 		choices = [(fs.filesystem_name, fs.filesystem_name) for fs in ZfsFileSystems.objects.all()]
 		form = FileSystemSelection(choices=choices)
-		return render(request, self.template_name, {'form': form})
+		return render(request, self.TEMPLATE_NAME, {'form': form})
 
 	def post(self, request, *args, **kwargs):
 		# create form instance and populate  with data from request:
@@ -94,7 +94,7 @@ class TakeSnapshotView(LoginRequiredMixin, generic.View):
 
 
 class CreateFileSystems(LoginRequiredMixin, generic.View):
-	TEMPLATE_NAME = 'ZFSAdmin/create_filesystem.html'
+	TEMPLATE_NAME = 'ZFSAdmin/manipulate_filesystems.html'
 	PENDING_TASK = 'PENDING_FILESYSTEM_CREATOR'
 	PROCESS_ID = 'filesystem_creator'
 

@@ -2,7 +2,7 @@
 
 if [ $1 == 'take_snapshot' ]
 then
-     echo taz2015* | /usr/local/bin/sudo -S \
+#     echo TEST_PASSWORD | /usr/local/bin/sudo -S \
      /sbin/zfs snapshot $2 && \
      echo "Snapshot taken: $2";
 elif [ $1 == 'list_snapshots' ]

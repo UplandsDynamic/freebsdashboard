@@ -85,6 +85,23 @@ def create_filesystems(names=None, datasets=None):
 	return process_result
 
 
+def delete_filesystem(fs_name=None):
+	# DELETES FILESYSTEM OF PASSED IN NAME
+	process_result = []
+	if fs_name:
+		result = subprocess.run(
+			['{}static/DefaultConfigFiles/{}'.format(settings.PROJECT_ROOT, settings.SYSTEM_CALL_SCRIPT_NAME),
+			 'delete_filesystem', fs_name],
+			stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+		if result.stderr:
+			process_result.append({'error': result.stderr})
+		else:
+			process_result.append({'success': result.stdout})
+	else:
+		process_result.append({'error': 'No file systems  were passed for deletion!'})
+	return process_result
+
+
 def take_snapshots(datasets=None):
 	# TAKES SNAPSHOTS OF PASSED IN DATASETS LIST
 	process_result = []

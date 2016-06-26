@@ -19,6 +19,11 @@ elif [ $1 == 'create_filesystems' ]
 then
     echo "Creating $2";
     /sbin/zfs create $2;
+elif [ $1 == 'delete_filesystem' ]
+then
+    echo "Deleting $2";
+    zfs destroy -r $2;
+    echo "File system '$2' destroyed!";
 else
     echo "Requested action not available in system_calls.sh";
     exit 1;

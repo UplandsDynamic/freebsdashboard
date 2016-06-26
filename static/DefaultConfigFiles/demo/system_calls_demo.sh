@@ -20,6 +20,10 @@ elif [ $1 == 'create_filesystems' ]
 then
     echo "Creating $2";
     echo "$2" >> $ROOT_DIR/static/DefaultConfigFiles/demo/datasets_demo.txt;
+elif [ $1 == 'delete_filesystem' ]
+then
+    sed -i.bak "\#$2#d" $ROOT_DIR/static/DefaultConfigFiles/demo/datasets_demo.txt && \
+    echo "File system '$2' destroyed!";
 else
     echo "Requested action not available in system_calls.sh";
     exit 1;

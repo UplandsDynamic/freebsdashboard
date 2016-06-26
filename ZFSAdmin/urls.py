@@ -10,5 +10,6 @@ urlpatterns = [
 	url(r'^update_snapshots', views.update_snapshot_list, name='update_snapshots'),
 	url(r'^take_snapshot$', views.TakeSnapshotView.as_view(), name='take_snapshot'),
 	url(r'^delete_snapshots', views.delete_snapshots, name='delete_snapshots'),
+	url(r'^delete_filesystem', views.delete_filesystem, name='delete_filesystem'),
 	url(r'^create_filesystems', views.CreateFileSystems.as_view(), name='create_filesystems'),
 ]

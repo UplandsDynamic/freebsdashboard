@@ -19,7 +19,7 @@
                     {% endfor %}
                 </ul>
             </div>
-            <span><a class="btn btn-primary" id="create_filesystems">Create File Systems</a></span>
+            <span><a class="btn btn-primary" id="create_filesystems">Create / Delete File Systems</a></span>
             <span><a class="btn btn-primary" id="take_snapshot">Take Snapshot</a></span>
             <span><a class="btn btn-danger" id="delete_selected">Delete Selected</a></span>
         </div>
@@ -86,7 +86,8 @@
                         delete_list_html += "<li>" + this.value + "</li>";
                     });
                     if (toDelete.length > 0) {
-                        $("#dialog-confirm").html("<strong>" + SNAPSHOT_DELETION_DIALOG_TITLE + "</strong>"
+                        $("#dialog-confirm").html("<div class=\"alert alert-danger\">" +
+                        "<strong>" + SNAPSHOT_DELETION_DIALOG_TITLE + "</strong></div>"
                                 + "<ul>" + delete_list_html + "</ul>");
                         // Define the Dialog and its properties.
                         $("#dialog-confirm").dialog({

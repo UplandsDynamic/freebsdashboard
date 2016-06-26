@@ -6,23 +6,26 @@ logger = logging.getLogger(__name__)
 
 
 def update_callback(task):
+	process_id = 'snapshot_updater'
 	# delete the task id from the task manager if no error, else add error flag
 	if task.result is True:
 		TaskManager.objects.update(task_id=task.id,
-		                           process_id='snapshot_updater',
+		                           process_id=process_id,
 		                           error_flag=False,
 		                           complete=True,
 		                           error_detail=None)
 	else:
 		TaskManager.objects.update(task_id=task.id,
-		                           process_id='snapshot_updater',
+		                           process_id=process_id,
 		                           error_flag=True,
 		                           complete=True,
 		                           error_detail=None)
 
 
 def delete_callback(task):
+	process_id = 'snapshot_deleter'
 	error = ''
+	error_blurb = 'There was an error initiating the task; snapshots were not deleted!'
 	if task.success:
 		if task.result:
 			for result in task.result:
@@ -32,26 +35,59 @@ def delete_callback(task):
 			error = 'There was a problem running the operation - no result was received.'
 		if error:
 			TaskManager.objects.update(task_id=task.id,
-			                           process_id='snapshot_deleter',
+			                           process_id=process_id,
 			                           error_flag=True,
 			                           error_detail=error.rstrip(', '),
 			                           complete=True)
 		else:
 			TaskManager.objects.update(task_id=task.id,
-			                           process_id='snapshot_deleter',
+			                           process_id=process_id,
 			                           error_flag=False,
 			                           error_detail=None,
 			                           complete=True)
 	else:
 		TaskManager.objects.update(task_id=task.id,
-		                           process_id='filesystem_creator',
+		                           process_id=process_id,
 		                           error_flag=True,
-		                           error_detail='There was an error initiating the task; snapshots were not deleted!',
+		                           error_detail=error_blurb,
+		                           complete=True)
+
+
+def fs_delete_callback(task):
+	error = ''
+	process_id = 'filesystem_deleter'
+	error_blurb = 'There was an error initiating the task; filesystem was not deleted!'
+	if task.success:
+		if task.result:
+			for result in task.result:
+				if 'error' in result:
+					error += '{}, '.format(result.get('error'))
+		else:
+			error = 'There was a problem running the operation - no result was received.'
+		if error:
+			TaskManager.objects.update(task_id=task.id,
+			                           process_id=process_id,
+			                           error_flag=True,
+			                           error_detail=error.rstrip(', '),
+			                           complete=True)
+		else:
+			TaskManager.objects.update(task_id=task.id,
+			                           process_id=process_id,
+			                           error_flag=False,
+			                           error_detail=None,
+			                           complete=True)
+	else:
+		TaskManager.objects.update(task_id=task.id,
+		                           process_id=process_id,
+		                           error_flag=True,
+		                           error_detail=error_blurb,
 		                           complete=True)
 
 
 def take_snapshots_callback(task):
 	error = ''
+	process_id = 'snapshot_taker'
+	error_blurb = 'There was an error initiating the task; snapshots were not created!'
 	if task.success:
 		if task.result:
 			for result in task.result:
@@ -61,26 +97,28 @@ def take_snapshots_callback(task):
 			error = 'There was a problem running the operation - no result was received.'
 		if error:
 			TaskManager.objects.update(task_id=task.id,
-			                           process_id='snapshot_taker',
+			                           process_id=process_id,
 			                           error_flag=True,
 			                           error_detail=error.rstrip(', '),
 			                           complete=True)
 		else:
 			TaskManager.objects.update(task_id=task.id,
-			                           process_id='snapshot_taker',
+			                           process_id=process_id,
 			                           error_flag=False,
 			                           error_detail=None,
 			                           complete=True)
 	else:
 		TaskManager.objects.update(task_id=task.id,
-		                           process_id='filesystem_creator',
+		                           process_id=process_id,
 		                           error_flag=True,
-		                           error_detail='There was an error initiating the task; snapshots were not created!',
+		                           error_detail=error_blurb,
 		                           complete=True)
 
 
 def create_filesystems_callback(task):
 	error = ''
+	error_blurb = 'There was an error initiating the task; file system was not created!'
+	process_id = 'filesystem_creator'
 	if task.success:
 		if task.result:
 			for result in task.result:
@@ -90,19 +128,19 @@ def create_filesystems_callback(task):
 			error = 'There was a problem running the operation - no result was received.'
 		if error:
 			TaskManager.objects.update(task_id=task.id,
-			                           process_id='filesystem_creator',
+			                           process_id=process_id,
 			                           error_flag=True,
 			                           error_detail=error.rstrip(', '),
 			                           complete=True)
 		else:
 			TaskManager.objects.update(task_id=task.id,
-			                           process_id='filesystem_creator',
+			                           process_id=process_id,
 			                           error_flag=False,
 			                           error_detail=None,
 			                           complete=True)
 	else:
 		TaskManager.objects.update(task_id=task.id,
-		                           process_id='filesystem_creator',
+		                           process_id=process_id,
 		                           error_flag=True,
-		                           error_detail='There was an error initiating the task; file system was not created!',
+		                           error_detail=error_blurb,
 		                           complete=True)

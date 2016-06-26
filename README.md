@@ -100,8 +100,8 @@ PRE INSTALL
 
 BEFORE installation, you need to take the following steps:
 
-Choose a password for the mysql database and edit the
-following setup.mysql file, replacing "tester_password_2016" with your chosen password:
+Choose a password for the mysql database and edit the following setup.mysql file, 
+replacing "tester_password_2016" with your chosen password:
 
     /usr/local/freebsdashboard/static/DefaultConfigFiles/setup.mysql
 
@@ -112,16 +112,28 @@ Open the following file in your favourite text editor:
     /usr/local/freebsdashboard/freebsdashboard/settings.py
 
 Find the DATABASES section in the above file and change the password to match 
-that which you just defined in the setup.mysql file.
+that which you just defined in the setup.mysql file, for example:
 
-E.g. 'PASSWORD': 'MyNewDatabasePassword',
+    'PASSWORD': 'MyNewDatabasePassword',
 
 POST INSTALL
 -------------------
 
 YOU WILL NEED TO REBOOT YOUR SYSTEM ONCE THE INSTALL SCRIPT HAS COMPLETED.
 
-Security of the system may be enhanced thus:
+Following installation, you will need edit the system_calls.sh file and 
+replace the freebsdashboard user password (default_password) with the one 
+that you set during the install process.
+
+So, open the following file in a text editor
+
+    /usr/local/freebsdashoard/static/DefaultConfigFiles/system_calls.sh
+
+and edit this appropriately:
+
+    FREEBSDASHBOARD_SYSTEM_PASSWORD='default_password'
+
+Security of the system may be further enhanced thus:
 
 a) If you're looking to lock-down the permissions further,
 edit /etc/sudoers (visudo) so as to restrict the user

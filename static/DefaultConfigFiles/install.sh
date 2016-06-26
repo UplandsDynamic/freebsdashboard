@@ -7,6 +7,7 @@ ROOT_DIR='/usr/local/freebsdashboard';
 
 # create freebsdashboard user
 pw user add freebsdashboard -G wheel;
+echo 'Enter a password for the freebsdashboard system user - and note it for later!';
 passwd freebsdashboard;
 
 # install all pkg's

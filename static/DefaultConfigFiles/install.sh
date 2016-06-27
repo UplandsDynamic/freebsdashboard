@@ -99,6 +99,9 @@ mkdir -p /var/log/uwsgi;
 # create a dir for the socket
 mkdir /sockets;
 
+# create log director
+mkdir /var/log/django_main
+
 # set permissions
 chmod +x $ROOT_DIR/static/DefaultConfigFiles/set_permissions.sh;
 /usr/local/bin/bash $ROOT_DIR/static/DefaultConfigFiles/set_permissions.sh \

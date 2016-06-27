@@ -1,6 +1,6 @@
 #!/usr/local/bin/bash
 
-PID_FILE="/var/run/django_q.pid"
+PID_FILE="/usr/local/freebsdashboard/static/DefaultConfigFiles/manage_django_q/django_q.pid"
 PROJECT_ROOT="/usr/local/freebsdashboard"
 VIRTUAL_ENV_DIR="/usr/local/virtual_env"
 re='^[0-9]+$'  # regex for number test

@@ -1,6 +1,7 @@
 #!/usr/local/bin/bash
 
-PID_FILE="/var/run/django_q.pid"
+#PID_FILE="/var/run/django_q.pid"
+PID_FILE="/usr/local/freebsdashboard/static/DefaultConfigFiles/manage_django_q/django_q.pid"
 PROJECT_ROOT="/usr/local/freebsdashboard"
 VIRTUAL_ENV_DIR="/usr/local/virtual_env"
 LOG_DATE=$(date -ju +"%d-%m-%Y.%Z") # u flag sets in UTC
@@ -12,8 +13,10 @@ then
     echo "A django_q cluster is already running!"
 else
     ## starts the django_q cluster
-    source $VIRTUAL_ENV_DIR/bin/activate
+    source $VIRTUAL_ENV_DIR/bin/activate;
+    /usr/bin/su freebsdashboard -c "
     nohup >> $LOG_DIR/django_q.log.$LOG_DATE $VIRTUAL_ENV_DIR/bin/python $PROJECT_ROOT/manage.py qcluster &
     echo $$ >$PID_FILE
-    echo "A django_q cluster is now running ..."
+    echo 'A django_q cluster is now running ...'
+    "
 fi

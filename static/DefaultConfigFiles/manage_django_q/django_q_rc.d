@@ -3,6 +3,7 @@
 # PROVIDE: django_q
 # REQUIRE: DAEMON
 # KEYWORD: shutdown
+# REQUIRE: LOGIN
 
 . /etc/rc.subr
 

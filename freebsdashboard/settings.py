@@ -176,9 +176,9 @@ LOGGING = {
 			'formatter': 'simple'
 		},
 		'file': {
-			'level': 'ERROR',
+			'level': 'DEBUG',
 			'class': 'logging.FileHandler',
-			'filename': 'debug.log',
+			'filename': '/var/log/django_main/debug.log',
 			'formatter': 'verbose'
 		},
 	},
@@ -186,6 +186,11 @@ LOGGING = {
 		'main': {
 			'handlers': ['console', 'file'],
 			'level': 'WARNING',
+			'propagate': True,
+		},
+		'django': {
+			'handlers': ['file'],
+			'level': 'DEBUG',
 			'propagate': True,
 		},
 	},

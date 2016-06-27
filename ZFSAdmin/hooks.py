@@ -29,7 +29,8 @@ def delete_callback(task):
 	if task.success:
 		if task.result:
 			for result in task.result:
-				if 'error' in result:
+				# Disregard "Password:" as an error - it's simply  passed to stderr during sudo -S process.
+				if 'error' in result and result.get('error') != 'Password:':
 					error += '{}, '.format(result.get('error'))
 		else:
 			error = 'There was a problem running the operation - no result was received.'
@@ -60,7 +61,8 @@ def fs_delete_callback(task):
 	if task.success:
 		if task.result:
 			for result in task.result:
-				if 'error' in result:
+				# Disregard "Password:" as an error - it's simply  passed to stderr during sudo -S process.
+				if 'error' in result and result.get('error') != 'Password:':
 					error += '{}, '.format(result.get('error'))
 		else:
 			error = 'There was a problem running the operation - no result was received.'
@@ -91,7 +93,8 @@ def take_snapshots_callback(task):
 	if task.success:
 		if task.result:
 			for result in task.result:
-				if 'error' in result:
+				# Disregard "Password:" as an error - it's simply  passed to stderr during sudo -S process.
+				if 'error' in result and result.get('error') != 'Password:':
 					error += '{}, '.format(result.get('error'))
 		else:
 			error = 'There was a problem running the operation - no result was received.'
@@ -122,7 +125,8 @@ def create_filesystems_callback(task):
 	if task.success:
 		if task.result:
 			for result in task.result:
-				if 'error' in result:
+				# Disregard "Password:" as an error - it's simply  passed to stderr during sudo -S process.
+				if 'error' in result and result.get('error') != 'Password:':
 					error += '{}, '.format(result.get('error'))
 		else:
 			error = 'There was a problem running the operation - no result was received.'

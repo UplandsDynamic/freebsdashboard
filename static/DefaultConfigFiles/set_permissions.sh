@@ -31,5 +31,15 @@ chown freebsdashboard:www /sockets;
 chmod g+s /sockets;
 chmod 0550 /usr/local/etc/rc.d/django_q;
 chown root /usr/local/etc/rc.d/django_q;
-chmod 0660 $ROOT_DIR/debug.log;
+chmod 0660 $ROOT_DIR/static/DefaultConfigFiles/manage_django_q/debug.log;
 chmod 0700 $ROOT_DIR/static/DefaultConfigFiles/config_django.sh;
+# logs
+chown freebsdashboard:www /var/log/django_q;
+chmod 775 /var/log/django_q;
+chmod g+s /var/log/django_q;
+chmod 111 /var/log/django_q;
+chown freebsdashboard:www /var/log/django_main;
+chmod 775 /var/log/django_main;
+chmod g+s /var/log/django_main;
+umask 111 /var/log/django_main;
+

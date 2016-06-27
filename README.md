@@ -57,7 +57,9 @@ install.sh script according to your current system setup
 such as Nginx, Redis, or a MySQL server).
 
 Bash needs to be installed prior to running this script (pkg install bash),
-and the script needs to be run with bash, as root, like so:
+and /usr/local/bin/bash needs to be executable by the "wheel" group.
+
+The install  script needs to be run with bash, as root, like so:
 
     cd /usr/local/freebsdashboard/static/DefaultConfigFiles
     sudo bash

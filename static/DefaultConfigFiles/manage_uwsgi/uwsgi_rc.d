@@ -3,6 +3,7 @@
 # PROVIDE: uwsgi
 # REQUIRE: DAEMON
 # KEYWORD: shutdown
+# REQUIRE: LOGIN
 
 . /etc/rc.subr
 

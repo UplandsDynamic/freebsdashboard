@@ -196,6 +196,42 @@ def delete_snapshots(request):
 
 
 @user_passes_test(lambda u: u.is_superuser)
+def clone_snapshots(request):
+	user = request.user  # necessary for the @user_passes_test decorator
+	pending_task = 'PENDING_SNAPSHOT_CLONE'
+	process_id = 'snapshot_cloner'
+	if request.is_ajax():
+		try:
+			if request.method == 'POST':
+				# convert the posted JSON into a list
+				clone_list = []
+				# decode binary request.body data to utf-8
+				body_unicode = request.body.decode('utf-8')
+				# load the decoded data into json format
+				received_json = json.loads(body_unicode)
+				for d in received_json["0"]["sendData"]:
+					clone_list.append(d)
+				# place task in the manager early to avoid race conditions
+				TaskManager.objects.update_or_create(task_id=pending_task, process_id=process_id)
+				clone_task = async(engineering.clone_snapshots, clone_list,
+				                    hook='ZFSAdmin.hooks.clone_callback')
+				if clone_task:
+					# update the taskmanager with the task id
+					TaskManager.objects.filter(task_id=pending_task).update(task_id=clone_task,
+					                                                        process_id=process_id)
+					return JsonResponse({'success': 'true'})
+				else:
+					TaskManager.objects.filter(task_id=pending_task).delete()
+					return JsonResponse({'success': 'false', 'error': 'Update task initiation failed!'})
+			else:
+				return JsonResponse({'success': 'false', 'error': 'Request was not POST'})
+		except (json.JSONDecodeError, AttributeError, TypeError, Exception) as e:
+			return JsonResponse({'success': 'false', 'error': str(e)})
+	else:
+		return JsonResponse({'success': 'false', 'error': 'Request not Ajax'})
+
+
+@user_passes_test(lambda u: u.is_superuser)
 def delete_filesystem(request):
 	user = request.user  # necessary for the @user_passes_test decorator
 	pending_task = 'PENDING_FILESYSTEM_DELETE'
@@ -233,12 +269,14 @@ def snapshot_task_manager(request):
 	running_tasks = TaskManager.objects.all()
 	snapshot_updater = running_tasks.filter(process_id='snapshot_updater')
 	snapshot_deleter = running_tasks.filter(process_id='snapshot_deleter')
+	snapshot_cloner = running_tasks.filter(process_id='snapshot_cloner')
 	snapshot_taker = running_tasks.filter(process_id='snapshot_taker')
 	filesystem_creator = running_tasks.filter(process_id='filesystem_creator')
 	filesystem_deleter = running_tasks.filter(process_id='filesystem_deleter')
 	# if running task
 	if snapshot_updater.filter(complete=False) or \
 			snapshot_deleter.filter(complete=False) or \
+			snapshot_cloner.filter(complete=False) or \
 			snapshot_taker.filter(complete=False) or \
 			filesystem_creator.filter(complete=False) or \
 			filesystem_deleter.filter(complete=False):
@@ -255,6 +293,9 @@ def snapshot_task_manager(request):
 		if snapshot_deleter.filter(error_flag=True):
 			error_detail = snapshot_deleter.filter(error_flag=True).first().error_detail
 			snapshot_deleter.delete()
+		if snapshot_cloner.filter(error_flag=True):
+			error_detail = snapshot_cloner.filter(error_flag=True).first().error_detail
+			snapshot_cloner.delete()
 		if filesystem_creator.filter(error_flag=True):
 			error_detail = filesystem_creator.filter(error_flag=True).first().error_detail
 			filesystem_creator.delete()
@@ -268,6 +309,9 @@ def snapshot_task_manager(request):
 	if snapshot_updater.filter(error_flag=False):
 		snapshot_updater.delete()
 	if snapshot_deleter.filter(error_flag=False):
+		update_snapshot_list(request)  # initiate update to refresh the snapshot list
+		updating = 'true'
+	if snapshot_cloner.filter(error_flag=False):
 		update_snapshot_list(request)  # initiate update to refresh the snapshot list
 		updating = 'true'
 	if snapshot_taker.filter(error_flag=False):

@@ -5,8 +5,7 @@ FREEBSDASHBOARD_SYSTEM_PASSWORD='default_password';
 if [ $1 == 'take_snapshot' ]
 then
      echo $FREEBSDASHBOARD_SYSTEM_PASSWORD | /usr/local/bin/sudo -S \
-     /sbin/zfs snapshot $2 && \
-     echo "Snapshot taken: $2";
+     /sbin/zfs snapshot $2;
 elif [ $1 == 'list_snapshots' ]
 then
     echo $FREEBSDASHBOARD_SYSTEM_PASSWORD | /usr/local/bin/sudo -S \
@@ -18,19 +17,19 @@ then
 elif [ $1 == 'delete_snapshot' ]
 then
     echo $FREEBSDASHBOARD_SYSTEM_PASSWORD | /usr/local/bin/sudo -S \
-    /sbin/zfs destroy $2 && \
-    echo "Snapshot '$2' destroyed!";
+    /sbin/zfs destroy $2;
+elif [ $1 == 'clone_snapshot' ]
+then
+    echo $FREEBSDASHBOARD_SYSTEM_PASSWORD | /usr/local/bin/sudo -S \
+    /sbin/zfs clone $2 $3;
 elif [ $1 == 'create_filesystems' ]
 then
     echo $FREEBSDASHBOARD_SYSTEM_PASSWORD | /usr/local/bin/sudo -S \
-    echo "Creating $2";
     /sbin/zfs create $2;
 elif [ $1 == 'delete_filesystem' ]
 then
     echo $FREEBSDASHBOARD_SYSTEM_PASSWORD | /usr/local/bin/sudo -S \
-    echo "Deleting $2";
-    zfs destroy -r $2;
-    echo "File system '$2' destroyed!";
+    /sbin/zfs destroy -r $2;
 else
     echo "Requested action not available in system_calls.sh";
     exit 1;

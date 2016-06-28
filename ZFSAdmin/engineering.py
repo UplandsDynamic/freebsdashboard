@@ -143,6 +143,28 @@ def delete_snapshots(datasets=None):
 	return process_result
 
 
+def clone_snapshots(snapshots=None):
+	# TAKES SNAPSHOTS OF PASSED IN DATASETS LIST
+	process_result = []
+	if snapshots:
+		for snapshot_name in snapshots:
+			clone_name = "{}/clone-{}".format(
+				parse_strings(stdout_str=snapshot_name, data_type='snapshots')[0].get('dataset'),
+				datetime.strftime(timezone.now(), '%d-%m-%Y.%H:%M:%S.%Z'))
+			# take snapshot of dataset
+			result = subprocess.run(
+				['{}static/DefaultConfigFiles/{}'.format(settings.PROJECT_ROOT, settings.SYSTEM_CALL_SCRIPT_NAME),
+				 'clone_snapshot', snapshot_name, clone_name],
+				stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+			if result.stderr:
+				process_result.append({'error': result.stderr})
+			else:
+				process_result.append({'success': result.stdout})
+	else:
+		process_result.append({'error': 'No datasets were passed for cloning!'})
+	return process_result
+
+
 # helper functions
 
 ''' Debug dev note: strptime = str to datetime, strftime = datetime to string '''

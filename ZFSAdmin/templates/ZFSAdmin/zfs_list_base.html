@@ -21,11 +21,13 @@
             </div>
             <span><a class="btn btn-primary" id="change_filesystems">Create / Delete File Systems</a></span>
             <span><a class="btn btn-primary" id="take_snapshot">Take Snapshot</a></span>
+            <span><a class="btn btn-primary" id="clone_selected">Clone Selected</a></span>
             <span><a class="btn btn-danger" id="delete_selected">Delete Selected</a></span>
+
         </div>
     </div>
     <div class="progress" id="updating"></div>
-    <div id="messages">{{ gui_message }}</div>
+    <div id="messages"></div>
     <div class="table-responsive">
         {% if table %}
             {#            {% render_table table %}#}
@@ -46,8 +48,10 @@
 
             var ERROR_MESSAGE = '<div class="alert alert-danger" role="alert">An update error occurred!</div>';
             var INITIATE_DELETE_MESSAGE = '<div class="alert alert-warning" role="alert">Initiating deletion ...</div>';
+            var INITIATE_CLONE_MESSAGE = '<div class="alert alert-warning" role="alert">Initiating cloning ...</div>';
             var STATUS_BAR_MESSAGE = 'Updating ... please wait ... patience is a virtue!';
             var SNAPSHOT_DELETION_DIALOG_TITLE = 'Confirm that you wish to delete the following:';
+            var SNAPSHOT_CLONE_DIALOG_TITLE = 'Confirm that you wish to clone the following:';
 
             function init() {
                 /* hide the table as default until task update status is determined */
@@ -67,7 +71,7 @@
                 TaskUpdateStatusChecker(page_load = 'true');
                 /* hide delete checkboxes if not logged in as superuser */
                 {% if not request.user.is_superuser %}
-                $('td.name, th.name').hide()
+                    $('td.name, th.name').hide()
                 {% endif %}
             }
 
@@ -91,7 +95,7 @@
                     });
                     if (toDelete.length > 0) {
                         $("#dialog-confirm").html("<div class=\"alert alert-danger\">" +
-                        "<strong>" + SNAPSHOT_DELETION_DIALOG_TITLE + "</strong></div>"
+                                "<strong>" + SNAPSHOT_DELETION_DIALOG_TITLE + "</strong></div>"
                                 + "<ul>" + delete_list_html + "</ul>");
                         // Define the Dialog and its properties.
                         $("#dialog-confirm").dialog({
@@ -101,15 +105,48 @@
                             title: "Are you really sure?!",
                             height: 600,
                             width: 800,
-                            hide: {effect: "explode", duration: 500},
+                            hide: {effect: "fade", duration: 500},
                             buttons: {
                                 "Yes, they'll be gone forever, I understand!": function () {
                                     $(this).dialog('close');
-                                    dialog_callback(true, toDelete);
+                                    delete_dialog_callback(true, toDelete);
                                 },
                                 "No, I'm making a terrible mistake, do not delete!": function () {
                                     $(this).dialog('close');
-                                    dialog_callback(false);
+                                    delete_dialog_callback(false);
+                                }
+                            }
+                        });
+                    }
+                }
+                document.getElementById("clone_selected").onclick = function () {
+                    var toClone = [];
+                    var clone_list_html = '';
+                    $('.clone_checkbox:checked').each(function () {
+                        toClone.push(this.value);
+                        clone_list_html += "<li>" + this.value + "</li>";
+                    });
+                    if (toClone.length > 0) {
+                        $("#dialog-confirm").html("<div class=\"alert alert-danger\">" +
+                                "<strong>" + SNAPSHOT_CLONE_DIALOG_TITLE + "</strong></div>"
+                                + "<ul>" + clone_list_html + "</ul>");
+                        // Define the Dialog and its properties.
+                        $("#dialog-confirm").dialog({
+                            dialogClass: 'no-close',
+                            resizable: true,
+                            modal: true,
+                            title: "Confirm clone",
+                            height: 600,
+                            width: 800,
+                            hide: {effect: "fade", duration: 500},
+                            buttons: {
+                                "Yes, go ahead and clone": function () {
+                                    $(this).dialog('close');
+                                    clone_dialog_callback(true, toClone);
+                                },
+                                "No, do not clone": function () {
+                                    $(this).dialog('close');
+                                    clone_dialog_callback(false);
                                 }
                             }
                         });
@@ -117,7 +154,7 @@
                 }
             }
 
-            function dialog_callback(value, toDelete) {
+            function delete_dialog_callback(value, toDelete) {
                 if (value && toDelete) {
                     $('#messages').html(INITIATE_DELETE_MESSAGE);
                     $.ajax({
@@ -150,6 +187,41 @@
                 }
             }
 
+
+            function clone_dialog_callback(value, toClone) {
+                if (value && toClone) {
+                    $('#messages').html(INITIATE_CLONE_MESSAGE);
+                    $.ajax({
+                        type: "POST",
+                        url: "{% url 'ZFSAdmin:clone_snapshots' %}",
+                        headers: {"X-CSRFToken": '{{ csrf_token }}'},
+                        data: JSON.stringify($({sendData: toClone})),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (result) {
+                            if (result.success == 'true') {
+                                setTimeout(function () {
+                                    window.location.replace("{% url 'ZFSAdmin:index' %}");
+                                }, 1000);
+                            } else {
+                                setTimeout(function () {
+                                    $('#messages').html(ERROR_MESSAGE + '<div>Error Details: ' + result.error + '</div>')
+                                }, 1000)
+                            }
+                        },
+                        error: function (result) {
+                            $('#messages').html(ERROR_MESSAGE);
+                            setTimeout(function () {
+                                window.location.replace("{% url 'ZFSAdmin:index' %}");
+                            }, 1000);
+                        }
+                    });
+                } else {
+                    /* nothing ... */
+                }
+            }
+
+
             function TaskUpdateStatusChecker(page_load) {
                 /* update progress checker - this loops until no update task is outstanding */
                 $.ajax({
@@ -164,7 +236,7 @@
                                 if (data.error == 'false') {
                                     window.location.replace("{% url 'ZFSAdmin:index' %}")
                                 } else {
-                                    $('#messages').html(ERROR_MESSAGE + '<div>Error detail: ' + data.error_detail + '</div>');
+                                    $('#messages').html(ERROR_MESSAGE + '<div class="alert alert-info">Error detail: ' + data.error_detail + '</div>');
                                     setTimeout(function () {
                                         window.location.replace("{% url 'ZFSAdmin:index' %}");
                                     }, 7000);
@@ -173,7 +245,7 @@
                             /* PAGE JUST (RE)LOADED */
                             else {
                                 if (data.error == 'true') {
-                                    $('#messages').html(ERROR_MESSAGE + '<div>Error detail: ' + data.error_detail + '</div>');
+                                    $('#messages').html(ERROR_MESSAGE + '<div class="alert alert-info">Error detail: ' + data.error_detail + '</div>');
                                     setTimeout(function () {
                                         window.location.replace("{% url 'ZFSAdmin:index' %}");
                                     }, 7000);
@@ -188,7 +260,7 @@
                         /* IF UPDATE TASK RUNNING */
                         else if (data.updating == 'true') {
                             if (data.error == 'true') {
-                                $('#messages').html(ERROR_MESSAGE + '<div>Error detail: ' + data.error_detail + '</div>');
+                                $('#messages').html(ERROR_MESSAGE + '<div class="alert alert-info">Error detail: ' + data.error_detail + '</div>');
                                 setTimeout(function () {
                                     window.location.replace("{% url 'ZFSAdmin:index' %}");
                                 }, 7000);

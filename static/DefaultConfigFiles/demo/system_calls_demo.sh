@@ -16,6 +16,10 @@ elif [ $1 == 'delete_snapshot' ]
 then
     sed -i.bak "\#$2#d" $ROOT_DIR/static/DefaultConfigFiles/demo/snapshots_demo.txt && \
     echo "Snapshot '$2' destroyed!";
+elif [ $1 == 'clone_snapshot' ]
+then
+    echo $2 >> $ROOT_DIR/static/DefaultConfigFiles/demo/datasets_demo.txt && \
+    echo "Dataset '$2' cloned!";
 elif [ $1 == 'create_filesystems' ]
 then
     echo "Creating $2";

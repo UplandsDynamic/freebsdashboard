@@ -8,7 +8,7 @@ class SnapshotTable(tables.Table):
 	dataset = tables.Column(verbose_name='ZFS File System Dataset')
 	datetime_created = tables.Column(verbose_name='Created', localize=True)
 	retention = tables.Column(verbose_name='Longevity (mins)')
-	name = tables.Column(verbose_name='Delete', orderable=False)
+	name = tables.Column(verbose_name='Action', orderable=False)
 
 	# Any custom renders of columns. Only needs specifying if custom tags/filters, etc.
 
@@ -22,4 +22,4 @@ class SnapshotTable(tables.Table):
 		model = ZfsSnapshot
 		# adds classes to <table> tag
 		attrs = {"class": "table table-hover snapshot-table"}
-		fields = ('dataset', 'datetime_created', 'retention', 'name')
+		fields = ('dataset', 'datetime_created', 'retention', 'name',)

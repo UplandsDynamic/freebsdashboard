@@ -54,6 +54,38 @@ def delete_callback(task):
 		                           complete=True)
 
 
+def clone_callback(task):
+	process_id = 'snapshot_cloner'
+	error = ''
+	error_blurb = 'There was an error initiating the task; snapshots were not cloned!'
+	if task.success:
+		if task.result:
+			for result in task.result:
+				# Disregard "Password:" as an error - it's simply  passed to stderr during sudo -S process.
+				if 'error' in result and result.get('error') != 'Password:':
+					error += '{}, '.format(result.get('error'))
+		else:
+			error = 'There was a problem running the operation - no result was received.'
+		if error:
+			TaskManager.objects.update(task_id=task.id,
+			                           process_id=process_id,
+			                           error_flag=True,
+			                           error_detail=error.rstrip(', '),
+			                           complete=True)
+		else:
+			TaskManager.objects.update(task_id=task.id,
+			                           process_id=process_id,
+			                           error_flag=False,
+			                           error_detail=None,
+			                           complete=True)
+	else:
+		TaskManager.objects.update(task_id=task.id,
+		                           process_id=process_id,
+		                           error_flag=True,
+		                           error_detail=error_blurb,
+		                           complete=True)
+
+
 def fs_delete_callback(task):
 	error = ''
 	process_id = 'filesystem_deleter'

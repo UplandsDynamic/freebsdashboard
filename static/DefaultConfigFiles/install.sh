@@ -99,7 +99,7 @@ mkdir -p /var/log/uwsgi;
 # create a dir for the socket
 mkdir /sockets;
 
-# create log director
+# create log directory & file
 mkdir /var/log/django_main
 
 # set permissions

@@ -8,7 +8,7 @@ ALPHA 1.0, PROTOTYPE DEMO. NOT FOR PRODUCTION USE!
 This version just has a ZFS Administration section, with basic functionality.
 
 DO NOT INSTALL AND TEST THIS ON A SYSTEM UPON WHICH THERE IS DATA THAT
-MEANS ANYTHING TO YOU! THIS IS A PROTOTYPE - DATALOSS MAY BE INCURRED, AND
+MEANS ANYTHING TO YOU! THIS IS A PROTOTYPE - DATA LOSS MAY BE INCURRED, AND
 YOUR SYSTEM MAY BE DESTROYED - OR WORSE - TRANSFORMED INTO A BLUEBERRY CRUMBLE.
 
 DESCRIPTION
@@ -29,11 +29,19 @@ Configurations are NOT stored in the application database, which means manual ch
 to system configuration files would not be overwritten by the application (and vice-versa).
 
 DEMO
-----
+-----------
 
 To test the gui dashboard without installation, try the live prototype demo at:
 
 https://freebsdashboard.aninstanceofme.com:8443
+
+POINTS OF CONTACT
+-----------------
+
+GitHub: https://github.com/ZWS2014/freebsdashboard
+IRC: #FreeBSDashboard channel on FreeNode network
+Email: dan@aninstanceofme.com
+Twitter: @aninstanceofme
 
 HOW TO INSTALL
 -------------------

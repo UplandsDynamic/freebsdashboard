@@ -167,22 +167,25 @@ with that to which you'd like to allow access:
 USAGE
 -----
 
-To test the demo, you need to have already created ZFS datasets on the system, 
-or use the provided "dummy" data.
+##### Choose to test with dummy data or live ZFS datasets
 
-To use the dummy ZFS datasets, change the "SYSTEM_CALL_SCRIPT_NAME" variable in 
+By default, this prototype demo is configured to use DUMMY data (provided).
+
+You can use the dummy datasets without the need to have ZFS installed on your system.
+
+To test on live ZFS datasets, change the "SYSTEM_CALL_SCRIPT_NAME" variable in 
 the following file:
 
     /usr/local/freebsdashboard/freebsdashboard/settings.py
     
-Change the variable from "system_calls.sh" to "demo/system_calls_demo.sh"
+Change the variable from "demo/system_calls_demo.sh" to "system_calls.sh"
 
-You can use the dummy datasets without the need to have ZFS installed on your system.
+##### Access the web-gui dashboard
 
 To access the web-gui dashboard, visit the following URL, replacing SERVER_IP 
 with the IP of your server. 
 
-Note that the demo installation creates  a self-signed certificate, so although the encryption is 
+Note that the demo installation creates a self-signed certificate, so although the encryption 
 itself is secure enough, the verified certificate signing element is clearly missing 
 (hence the browser warnings):
 
@@ -213,9 +216,19 @@ In the meantime, a dedicated upgrade script should hopefully be available come t
 first Beta release.
 
 To update whilst this is an Alpha release (which is intended as a prototype, for 
-demo purposes only), simply pull the latest updates from the github repo at:
+demo purposes only), fetch the updates from master branch of the github repo at:
 
 https://github.com/ZWS2014/freebsdashboard.git
+
+To fetch the latest commits from master branch and overwrite the installed version 
+*without retaining any local changes*, use the following git commands:
+
+    git fetch --all
+	git reset --hard origin/master
+
+After doing this, you may need to run the following script to reset permissions:
+
+    /usr/local/freebsdashboard/static/DefaultConfigFiles/set_permissions.sh
 
 USEFUL COMMANDS
 -------------------

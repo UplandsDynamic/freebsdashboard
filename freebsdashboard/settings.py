@@ -203,6 +203,6 @@ PROJECT_ROOT = '/usr/local/freebsdashboard/'
 DEFAULT_SITE_NAME = 'FreeBSDashboard'
 
 # for REAL data, use system_calls.sh, for dummy data (demo) use demo/system_calls_demo.sh
-SYSTEM_CALL_SCRIPT_NAME = 'system_calls.sh'
+SYSTEM_CALL_SCRIPT_NAME = '/demo/system_calls_demo.sh'
 
 DEFAULT_FOOTER_TEXT = 'Do not eat the blueberry crumble!'

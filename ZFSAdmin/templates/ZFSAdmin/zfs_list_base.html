@@ -4,26 +4,50 @@
 {% block the_body %}
     <div id="button_container" style="margin-bottom:1em;min-height:2.5em;">
         <div id="button_div">
-            <span><a class="btn btn-primary" id="update_list">Update list</a></span>
-            <div class="btn-group">
-                <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
-                        aria-haspopup="true"
-                        aria-expanded="false"
-                        id="dataset-filter">
-                    Filter File System <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a href="{% url 'ZFSAdmin:index' %}">All</a></li>
-                    {% for ds in datasets %}
-                        <li><a href="{% url 'ZFSAdmin:index' %}?filter={{ ds }}">{{ ds }}</a></li>
-                    {% endfor %}
-                </ul>
-            </div>
-            <span><a class="btn btn-primary" id="change_filesystems">Create / Delete File Systems</a></span>
-            <span><a class="btn btn-primary" id="take_snapshot">Take Snapshot</a></span>
-            <span><a class="btn btn-primary" id="clone_selected">Clone Selected</a></span>
-            <span><a class="btn btn-danger" id="delete_selected">Delete Selected</a></span>
 
+
+            <div class="btn-toolbar" role="toolbar" aria-label="Snapshot administration">
+                <div class="btn-group" role="group" aria-label="Filter dataset">
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
+                            aria-haspopup="true"
+                            aria-expanded="false"
+                            id="dataset-filter"><span class="glyphicon glyphicon-filter"
+                                                      style="margin-right:0.5em;"></span>
+                        Filter File System <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a href="{% url 'ZFSAdmin:index' %}">All</a></li>
+                        {% for ds in datasets %}
+                            <li><a href="{% url 'ZFSAdmin:index' %}?filter={{ ds }}">{{ ds }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <button type="button" class="btn btn-primary" id="update_list"><span
+                        class="glyphicon glyphicon-refresh"
+                        style="margin-right:0.5em;"></span>Update List</button>
+                <button type="button" class="btn btn-primary" id="change_filesystems"><span
+                        class="glyphicon glyphicon-briefcase"
+                        style="margin-right:0.5em;"></span>Create / Delete File Systems
+                </button>
+                <button type="button" class="btn btn-primary" id="take_snapshot"><span
+                        class="glyphicon glyphicon-duplicate"
+                        style="margin-right:0.5em;"></span>Take Snapshot
+                </button>
+                <div class="btn-group" role="group" aria-label="Action on selected">
+                    <button type="button" class="btn btn-warning" id="clone_selected"><span
+                            class="glyphicon glyphicon-check" style="margin-right:0.5em;"></span><span
+                            class="glyphicon glyphicon-duplicate"
+                            style="margin-right:0.5em;"></span>Clone
+                        Selected
+                    </button>
+                    <button type="button" class="btn btn-danger" id="delete_selected"><span
+                            class="glyphicon glyphicon-check" style="margin-right:0.5em;"></span><span
+                            class="glyphicon glyphicon-remove-circle"
+                            style="margin-right:0.5em;"></span>Delete
+                        Selected
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
     <div class="progress" id="updating"></div>
@@ -71,8 +95,10 @@
                 TaskUpdateStatusChecker(page_load = 'true');
                 /* hide delete checkboxes if not logged in as superuser */
                 {% if not request.user.is_superuser %}
-                    $('td.name, th.name').hide()
+                    $('td.name, th.name').hide();
                 {% endif %}
+                /* add icons to column name - easier to do this here than in django_tables2 code */
+                $('th.name').html('<span class="glyphicon glyphicon-check" style="margin:0em 1em 0em 0em;"></span>Select for Action');
             }
 
             function ButtonListener() {
@@ -89,7 +115,7 @@
                 document.getElementById("delete_selected").onclick = function () {
                     var toDelete = [];
                     var delete_list_html = '';
-                    $('.delete_checkbox:checked').each(function () {
+                    $('.action_checkbox:checked').each(function () {
                         toDelete.push(this.value);
                         delete_list_html += "<li>" + this.value + "</li>";
                     });
@@ -122,7 +148,7 @@
                 document.getElementById("clone_selected").onclick = function () {
                     var toClone = [];
                     var clone_list_html = '';
-                    $('.clone_checkbox:checked').each(function () {
+                    $('.action_checkbox:checked').each(function () {
                         toClone.push(this.value);
                         clone_list_html += "<li>" + this.value + "</li>";
                     });

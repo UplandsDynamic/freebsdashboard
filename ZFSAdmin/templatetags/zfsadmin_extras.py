@@ -13,8 +13,7 @@ def str_to_cbox_value(value, autoescape=True):
 		esc = conditional_escape
 	else:
 		esc = lambda x: x
-	checkboxes = 'Clone <input style="margin-right:2em;" class="clone_checkbox" type="checkbox" value="{}"></input>' \
-	             'Delete <input class="delete_checkbox" type="checkbox" value="{}"></input>'.format(value, value)
+	checkboxes = '<input class="action_checkbox" type="checkbox" value="{}"></input>'.format(value)
 	return mark_safe(checkboxes)
 
 

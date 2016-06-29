@@ -39,8 +39,11 @@ POINTS OF CONTACT
 -----------------
 
 GitHub: https://github.com/ZWS2014/freebsdashboard
+
 IRC: #FreeBSDashboard channel on FreeNode network
+
 Email: dan@aninstanceofme.com
+
 Twitter: @aninstanceofme
 
 HOW TO INSTALL

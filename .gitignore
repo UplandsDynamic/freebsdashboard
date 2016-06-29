@@ -6,3 +6,4 @@
 *.git_notes
 */migrations/*.py
 DEV_NOTES.txt
+*.pid

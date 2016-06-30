@@ -20,6 +20,6 @@ load_rc_config $name
 # DO NOT CHANGE THESE DEFAULT VALUES HERE
 # SET THEM IN THE /etc/rc.conf FILE
 #
-utility_enable=${uwsgi_enable-"YES"}
+uwsgi_enable=${uwsgi_enable-"NO"}
 pidfile=${uwsgi_pidfile-"/var/run/uwsgi_emperor.pid"}
 run_rc_command "$@"

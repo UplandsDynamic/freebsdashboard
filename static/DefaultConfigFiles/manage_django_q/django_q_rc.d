@@ -18,6 +18,6 @@ load_rc_config $name
 # DO NOT CHANGE THESE DEFAULT VALUES HERE
 # SET THEM IN THE /etc/rc.conf FILE
 #
-utility_enable=${django_q_enable-"YES"}
+django_q_enable=${django_q_enable-"NO"}
 pidfile=${django_q_pidfile-"/var/run/django_q.pid"}
 run_rc_command "$@"

@@ -40,3 +40,5 @@ ZaziorkDataCenter/ZaziorkHome@auto-18-06-2016.09:30:00.UTC-10080mins	0	-	1.96G	-
 ZaziorkDataCenter/ZaziorkHome@auto-18-06-2016.09:45:00.UTC-10080mins	0	-	1.96G	-
 ZaziorkDataCenter/ZaziorkHome@auto-18-06-2016.10:00:00.UTC-10080mins	0	-	1.96G	-
 
+ZaziorkDataCenter@manual-01-07-2016.21:20:41.UTC-0mins
+ZaziorkDataCenter/ZaziorkHome@manual-01-07-2016.21:20:41.UTC-0mins

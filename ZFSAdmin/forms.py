@@ -9,7 +9,7 @@ class FileSystemSelection(forms.Form):
     def __init__(self, *args, **kwargs):
         choices = kwargs.pop('choices', None)
         super(FileSystemSelection, self).__init__(*args, **kwargs)
-        self.fields['filesystem'].choices = choices
+        self.fields['filesystems'].choices = choices
 
 
 class NewFileSystem(forms.Form):

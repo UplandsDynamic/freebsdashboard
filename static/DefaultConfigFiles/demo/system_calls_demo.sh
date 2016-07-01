@@ -24,6 +24,7 @@ elif [ $1 == 'create_filesystems' ]
 then
     echo "Creating $2";
     echo "$2" >> $ROOT_DIR/static/DefaultConfigFiles/demo/datasets_demo.txt;
+    echo 'Compression was set to: $3'
 elif [ $1 == 'delete_filesystem' ]
 then
     sed -i.bak "\#$2#d" $ROOT_DIR/static/DefaultConfigFiles/demo/datasets_demo.txt && \

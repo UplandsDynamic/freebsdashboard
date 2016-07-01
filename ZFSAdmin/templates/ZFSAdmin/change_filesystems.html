@@ -6,29 +6,31 @@
         <div class="form-group create_filesystem_form">
             <div class="container-fluid">
                 <div class="row">
-                    <div id="create_filesystem_form_1" class="col-xs-6 col-sm-6 col-md-6 col-md-lg-6">
-                        {{ form.non_field_errors }}
+                    <div id="create_filesystem_form" class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
+                        <h2>Create File System(s)</h2>
+                        {% for form in formset %}
+                            {{ form.non_form_errors }}
+                        {% endfor %}
+                        {{ formset.non_form_errors }}
                         {% csrf_token %}
-                        <div class="alert alert-info">Select a dataset under which to create your file systems</div>
-                        {{ form.datasets }}
-                        {{ form.datasets.errors }}
-                    </div>
-                    <div id="create_filesystem_form_2" class="col-xs-6 col-sm-6 col-md-6 col-md-lg-6">
                         <div class="form_info alert alert-info">
-                            <p>Enter the filesystem names here <span style="font-style:italic;
-                            font-weight:bold;">
-                                without the prepending dataset</span>.</p>
-                            <p>Separate multiple with a comma.</p>
-                            <p>
-                                For example, if you select the dataset "MyPool/MyFileSystem", submit the following
-                                to create two new file systems in the MyPool/MyFileSystem dataset:</p>
-                            <p><span style="font-style: italic"> MyNewFileSystem, MyNewFileSystem2
-                                </span>
-                            </p>
+                            <p>Enter the new filesystem details here, selecting the desired zpool/dataset first.</p>
+                            <p>For example, enter MyNewFileSystem, or MyNewFileSystem/MyNewFileSystemTwo.</p>
                         </div>
-                        {{ form.filesystems }}
-                        {{ form.filesystems.errors }}
-                        <div class="submit"><input type="submit" class="btn btn-success" value="Create File System(s)"/></div>
+                        {% for form in formset %}
+                            <div class="form_filesystems">
+                                {{ form.datasets }} / {{ form.filesystem }}
+                                <div class="zws-red-alert">{{ form.dataset.errors }}</div>
+                                <div class="zws-red-alert">{{ form.filesystem.errors }}</div>
+                            </div>
+                            <div class="form_compression" style="margin-bottom:1em;"><span
+                                    class="label label-primary">{{ form.compression.label }}</span> {{ form.compression }} {{ form.compression.errors }}
+                            </div>
+                        {% endfor %}
+                        {{ formset.management_form }}
+                        <div class="submit" style="margin-top:1em;"><input type="submit" class="btn btn-success"
+                                                                           value="Create File System(s)"/>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -36,7 +38,14 @@
     </form>
     <div class="container-fluid">
         <div class="row">
-            <div id="create_filesystem_form_1" class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
+            <div id="delete_filesystem_form" class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
+                <h2>Delete Dataset</h2>
+                {{ dataset_deletion_form.non_form_errors }}
+                {% csrf_token %}
+                <div class="form_info alert alert-info">
+                    <p>Select the dataset you wish to delete from the list.</p>
+                </div>
+                {{ dataset_deletion_form.datasets }} {{ dataset_deletion_form.errors }}
                 <button class="btn btn-danger" id="delete">Delete Selected File System</button>
             </div>
         </div>
@@ -57,17 +66,17 @@
             function init() {
                 ButtonListener();
                 /* slide in */
-                $('#create_filesystem_form_1').hide();
-                $('#create_filesystem_form_1').show("slide", {"direction": "right"}, 1000);
-                $('#create_filesystem_form_2').hide();
-                $('#create_filesystem_form_2').show("slide", {"direction": "right"}, 1000);
+                $('#create_filesystem_form').hide();
+                $('#create_filesystem_form').show("slide", {"direction": "right"}, 1000);
+                $('#delete_filesystem_form').hide();
+                $('#delete_filesystem_form').show("slide", {"direction": "right"}, 1000);
                 $('#existing_filesystems').hide();
                 $('#existing_filesystems').show("slide", {"direction": "left"}, 1000);
             }
 
             function ButtonListener() {
                 document.getElementById("delete").onclick = function () {
-                    var selected = $('input[name=datasets]:checked').val();
+                    var selected = $('select[name=datasets]').val();
                     /* call the dialog */
                     if (selected.length > 0) {
                         $("#dialog-confirm").html("<div class=\"alert alert-danger\"><strong>"

@@ -1,6 +1,4 @@
 ZaziorkDataCenter
-ZaziorkDataCenter/ZaziorkData
-ZaziorkDataCenter/ZaziorkHome
 zroot
 zroot/ROOT
 zroot/ROOT/default
@@ -15,7 +13,4 @@ zroot/var/crash
 zroot/var/log
 zroot/var/mail
 zroot/var/tmp
-zroot/test
-ZaziorkDataCenter/ZaziorkHome/Tester/Tester3
-ZaziorkDataCenter/ZaziorkHome/Tester/Tester4
-ZaziorkDataCenter/test
+ZaziorkDataCenter/ZaziorkHome

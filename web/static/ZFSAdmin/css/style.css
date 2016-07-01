@@ -13,6 +13,21 @@ h2 {
     font-size: 1.2em;
 }
 
+div#existing_filesystems, div#create_filesystem_form_1 {
+    overflow: auto;
+}
+
+.zws-red-alert ul li {
+    background-color:#f2dede!important;
+    color:#a94442!important;
+    margin:1em;
+    padding:1em;
+    font-weight:bold;
+    font-size:1.2em;
+    border-radius: 0.3em;
+    border:0.1em solid #ebccd1;
+}
+
 /* Navbar overrides */
 
 .navbar {

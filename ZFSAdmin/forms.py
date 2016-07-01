@@ -21,17 +21,22 @@ class NewFileSystem(forms.Form):
                                  validators=[validate_filesystem_value],
                                  required=False)
     compression = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    sharenfs = forms.BooleanField(widget=forms.CheckboxInput, required=False)
 
     def __init__(self, *args, **kwargs):
         dataset_choices = kwargs.pop('choices', None)
         dataset_initial_value = kwargs.pop('initial', None)
         compression_choice = kwargs.pop('compression', True)
+        sharenfs_choice = kwargs.pop('sharenfs', False)
         super(NewFileSystem, self).__init__(*args, **kwargs)
         # labels
         self.fields['filesystem'].label = "Enter filsystem name"
         self.fields['datasets'].label = "Select Dataset"
         self.fields['compression'].label = "Use compression"
+        self.fields['sharenfs'].label = "Share with NFS"
         # choice setup
         self.fields['datasets'].choices = dataset_choices
         self.fields['datasets'].initial = dataset_initial_value
         self.fields['compression'].initial = compression_choice
+        self.fields['sharenfs'].initial = sharenfs_choice
+

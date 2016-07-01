@@ -69,11 +69,9 @@ class TakeSnapshotView(UserPassesTestMixin, generic.View):
 
     def post(self, request, *args, **kwargs):
         # create form instance and populate  with data from request:
-
         choices = []
         for fs in request.POST.getlist('filesystems'):
             choices.append((fs, fs))
-
         form = FileSystemSelection(request.POST, choices=choices)
         # check valid:
         if form.is_valid():

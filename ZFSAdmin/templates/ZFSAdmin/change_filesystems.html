@@ -26,6 +26,9 @@
                             <div class="form_compression" style="margin-bottom:1em;"><span
                                     class="label label-primary">{{ form.compression.label }}</span> {{ form.compression }} {{ form.compression.errors }}
                             </div>
+                            <div class="form_sharenfs" style="margin-bottom:1em;"><span
+                                    class="label label-primary">{{ form.sharenfs.label }}</span> {{ form.sharenfs }} {{ form.sharenfs.errors }}
+                            </div>
                         {% endfor %}
                         {{ formset.management_form }}
                         <div class="submit" style="margin-top:1em;"><input type="submit" class="btn btn-success"

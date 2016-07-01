@@ -25,7 +25,7 @@ then
 elif [ $1 == 'create_filesystems' ]
 then
     echo $FREEBSDASHBOARD_SYSTEM_PASSWORD | /usr/local/bin/sudo -S \
-    /sbin/zfs create -o compression=$3 $2;
+    /sbin/zfs create -o compression=$3 -o sharenfs=$4 $2;
 elif [ $1 == 'delete_filesystem' ]
 then
     echo $FREEBSDASHBOARD_SYSTEM_PASSWORD | /usr/local/bin/sudo -S \

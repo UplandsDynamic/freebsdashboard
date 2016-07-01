@@ -70,11 +70,15 @@ def create_filesystems(data=None):
             if d.get('filesystem'):
                 # process submitted formset data
                 processed_data = process_data(submitted_data=d, data_type="filesystems")
-                logger.error('{}, {}'.format(processed_data.get('name'), processed_data.get('compression')))
                 result = subprocess.run(
                     ['{}static/DefaultConfigFiles/{}'.format(settings.PROJECT_ROOT, settings.SYSTEM_CALL_SCRIPT_NAME),
-                     'create_filesystems', processed_data.get('name'), processed_data.get('compression')],
+                     'create_filesystems',
+                     processed_data.get('name'),
+                     processed_data.get('compression'),
+                     processed_data.get('sharenfs')],
                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+                if settings.DEBUG:
+                    logger.error('STDOUT: {}'.format(result.stdout))
                 if not result:
                     process_result.append({'error': 'No filesystems were created; '
                                                     'there was an error initialising the process'})
@@ -210,5 +214,6 @@ def process_data(stdout_str=None, submitted_data=None, data_type=None):
                                            # filesystem filtered to remove leading & trailing slashes, & anything not: A-Za-z0-9-_/
                                            re.sub(r'[^A-Za-z0-9-_/]', '',
                                                   submitted_data.get('filesystem')).strip('/')),
-                    'compression': 'on' if submitted_data.get('compression') else 'off'}
+                    'compression': 'on' if submitted_data.get('compression') else 'off',
+                    'sharenfs': 'on' if submitted_data.get('sharenfs') else 'off'}
     return return_data if return_data else None

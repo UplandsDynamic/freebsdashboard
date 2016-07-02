@@ -14,6 +14,10 @@
                             class="glyphicon glyphicon-minus-sign"
                             style="margin-right:0.5em;"></span>Delete File Systems
                     </button>
+                    <button type="button" class="btn btn-info" id="filesystem_props"><span
+                            class="glyphicon glyphicon-minus-sign"
+                            style="margin-right:0.5em;"></span>Show File System Properties
+                    </button>
                 </div>
             </div>
         </div>
@@ -24,7 +28,7 @@
             <div class="container-fluid">
                 <div class="row">
                     <div id="create_filesystem_form" class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
-                        <h1><span class="label label-success">Create File System(s)</span></h1>
+                        <h2><span class="glyphicon glyphicon-plus-sign"></span> Create File System(s)</h2>
                         {% for form in formset %}
                             {{ form.non_form_errors }}
                         {% endfor %}
@@ -62,18 +66,26 @@
     <div class="container-fluid">
         <div class="row">
             <div id="delete_filesystem_form" class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
-                <h1><span class="label label-danger">Delete Dataset</span></h1>
+                <h2><span class="glyphicon glyphicon-minus-sign"></span> Delete Dataset</h2>
                 {{ dataset_deletion_form.non_form_errors }}
                 {% csrf_token %}
                 <div class="form_info alert alert-info">
                     <p>Select the dataset you wish to delete from the list.</p>
                 </div>
                 {{ dataset_deletion_form.datasets }} {{ dataset_deletion_form.errors }}
-                <button class="btn btn-danger" id="delete">Delete Selected File System</button>
+                <button class="btn btn-danger" id="delete">Delete Selected Dataset</button>
             </div>
         </div>
-        <div id="dialog-confirm"></div>
     </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div id="show_filesystem_props" class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
+                <h2><span class="glyphicon glyphicon-cog"></span> Show File System Properties</h2>
+                <p>Coming soon to a view near you ...</p>
+            </div>
+        </div>
+    </div>
+    <div id="dialog-confirm"></div>
 
 {% endblock %}
 {% block scripts %}
@@ -93,6 +105,7 @@
                 $('#button_div').show("slide", {"direction": "left"}, 1000);
                 $('#create_filesystem_form').hide();
                 $('#delete_filesystem_form').hide();
+                $('#show_filesystem_props').hide();
             }
 
             function ButtonListener() {
@@ -127,12 +140,23 @@
                 };
                 document.getElementById("create_filesystems").onclick = function () {
                     $('#delete_filesystem_form').hide("slide", {"direction": "right"}, 1000, function () {
-                        $('#create_filesystem_form').show("slide", {"direction": "left"}, 1000);
+                        $('#show_filesystem_props').hide("slide", {"direction": "left"}, 1000, function () {
+                            $('#create_filesystem_form').show("slide", {"direction": "left"}, 1000);
+                        });
                     });
                 };
                 document.getElementById("delete_filesystems").onclick = function () {
                     $('#create_filesystem_form').hide("slide", {"direction": "left"}, 1000, function () {
-                        $('#delete_filesystem_form').show("slide", {"direction": "right"}, 1000);
+                        $('#show_filesystem_props').hide("slide", {"direction": "left"}, 1000, function () {
+                            $('#delete_filesystem_form').show("slide", {"direction": "right"}, 1000);
+                        });
+                    });
+                }
+                document.getElementById("filesystem_props").onclick = function () {
+                    $('#create_filesystem_form').hide("slide", {"direction": "left"}, 1000, function () {
+                        $('#delete_filesystem_form').hide("slide", {"direction": "right"}, 1000, function () {
+                            $('#show_filesystem_props').show("slide", {"direction": "left"}, 1000);
+                        });
                     });
                 }
             }

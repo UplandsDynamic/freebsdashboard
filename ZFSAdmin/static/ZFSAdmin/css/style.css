@@ -9,6 +9,10 @@ body {
     font-family: 'Roboto-Bold', monospace;
 }
 
+h1 {
+    margin-bottom: 1em;
+}
+
 h2 {
     font-size: 1.2em;
 }
@@ -18,14 +22,14 @@ div#existing_filesystems, div#create_filesystem_form_1 {
 }
 
 .zws-red-alert ul li {
-    background-color:#f2dede!important;
-    color:#a94442!important;
-    margin:1em;
-    padding:1em;
-    font-weight:bold;
-    font-size:1.2em;
+    background-color: #f2dede !important;
+    color: #a94442 !important;
+    margin: 1em;
+    padding: 1em;
+    font-weight: bold;
+    font-size: 1.2em;
     border-radius: 0.3em;
-    border:0.1em solid #ebccd1;
+    border: 0.1em solid #ebccd1;
 }
 
 /* Navbar overrides */
@@ -44,7 +48,9 @@ table.snapshot-table {
 
 ul {
     list-style: none;
-    padding:0;
+    padding: 0;
 }
 
-.no-close .ui-dialog-titlebar-close {display: none }
+.no-close .ui-dialog-titlebar-close {
+    display: none
+}

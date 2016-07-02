@@ -25,6 +25,7 @@ def update_all_zfs_data():
 
 def update_zfs_data(datatype=None):
     # RETRIEVES THE LATEST ZFS SNAPSHOT DATA & UPDATES MODEL
+    limit = 5 if settings.TEST_MODE else ''
     if datatype == 'LIST_SNAPSHOTS':
         std_out = subprocess.run(
             ['{}static/DefaultConfigFiles/{}'.format(settings.PROJECT_ROOT, settings.SYSTEM_CALL_SCRIPT_NAME),
@@ -34,7 +35,7 @@ def update_zfs_data(datatype=None):
         if snapshot_data:
             # clear the model/database first
             ZfsSnapshot.objects.all().delete()
-            for snapshot in snapshot_data:
+            for snapshot in snapshot_data[:limit]:
                 # add snapshots_demo.txt to the database
                 created = ZfsSnapshot.objects.create(
                     datetime_created=snapshot['datetime'],

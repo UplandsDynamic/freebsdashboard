@@ -2,12 +2,29 @@
 {% load static %}
 {% block title %}Create ZFS File Systems{% endblock %}
 {% block the_body %}
+    <div id="button_container" style="margin-bottom:1em;min-height:2.5em;">
+        <div id="button_div">
+            <div class="btn-toolbar" role="toolbar" aria-label="Snapshot administration">
+                <div class="btn-group" role="group" aria-label="Action on selected">
+                    <button type="button" class="btn btn-success" id="create_filesystems"><span
+                            class="glyphicon glyphicon-plus-sign"
+                            style="margin-right:0.5em;"></span>Create File Systems
+                    </button>
+                    <button type="button" class="btn btn-danger" id="delete_filesystems"><span
+                            class="glyphicon glyphicon-minus-sign"
+                            style="margin-right:0.5em;"></span>Delete File Systems
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr>
     <form role="form" action="{% url 'ZFSAdmin:change_filesystems' %}" method="post">
         <div class="form-group create_filesystem_form">
             <div class="container-fluid">
                 <div class="row">
                     <div id="create_filesystem_form" class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
-                        <h2>Create File System(s)</h2>
+                        <h1><span class="label label-success">Create File System(s)</span></h1>
                         {% for form in formset %}
                             {{ form.non_form_errors }}
                         {% endfor %}
@@ -45,7 +62,7 @@
     <div class="container-fluid">
         <div class="row">
             <div id="delete_filesystem_form" class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
-                <h2>Delete Dataset</h2>
+                <h1><span class="label label-danger">Delete Dataset</span></h1>
                 {{ dataset_deletion_form.non_form_errors }}
                 {% csrf_token %}
                 <div class="form_info alert alert-info">
@@ -72,12 +89,10 @@
             function init() {
                 ButtonListener();
                 /* slide in */
+                $('#button_div').hide();
+                $('#button_div').show("slide", {"direction": "left"}, 1000);
                 $('#create_filesystem_form').hide();
-                $('#create_filesystem_form').show("slide", {"direction": "right"}, 1000);
                 $('#delete_filesystem_form').hide();
-                $('#delete_filesystem_form').show("slide", {"direction": "right"}, 1000);
-                $('#existing_filesystems').hide();
-                $('#existing_filesystems').show("slide", {"direction": "left"}, 1000);
             }
 
             function ButtonListener() {
@@ -109,6 +124,16 @@
                             }
                         });
                     }
+                };
+                document.getElementById("create_filesystems").onclick = function () {
+                    $('#delete_filesystem_form').hide("slide", {"direction": "right"}, 1000, function () {
+                        $('#create_filesystem_form').show("slide", {"direction": "left"}, 1000);
+                    });
+                };
+                document.getElementById("delete_filesystems").onclick = function () {
+                    $('#create_filesystem_form').hide("slide", {"direction": "left"}, 1000, function () {
+                        $('#delete_filesystem_form').show("slide", {"direction": "right"}, 1000);
+                    });
                 }
             }
 

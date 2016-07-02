@@ -198,6 +198,8 @@ LOGGING = {
 
 '''PROJECT SETTINGS '''
 
+TEST_MODE = True
+
 PROJECT_ROOT = '/usr/local/freebsdashboard/'
 
 DEFAULT_SITE_NAME = 'FreeBSDashboard'

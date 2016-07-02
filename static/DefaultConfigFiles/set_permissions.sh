@@ -38,4 +38,6 @@ chown www:wheel /var/log/django_main;
 chmod 775 /var/log/django_main;
 chmod g+s /var/log/django_main;
 umask 007 /var/log/django_main;
+# temporary permissions for demo
+chmod +x /usr/local/freebsdashboard/update.sh  # TODO: Remove this in release version
 

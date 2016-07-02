@@ -64,12 +64,12 @@ git clone https://github.com/ZWS2014/django-q.git \
 /usr/local/virtual_env/lib/python3.5/site-packages/django_q.git;
 cp -R /usr/local/virtual_env/lib/python3.5/site-packages/django_q.git/django_q \
 /usr/local/virtual_env/lib/python3.5/site-packages/django_q;
-pip install django-picklefield  # pulled in auto if pip install django_q
-pip install future # pulled in auto if pip install django_q
-pip install arrow # pulled in auto if pip install django_q
-pip install blessed # pulled in auto if pip install django_q
+pip install django-picklefield;  # pulled in auto if pip install django_q
+pip install future; # pulled in auto if pip install django_q
+pip install arrow; # pulled in auto if pip install django_q
+pip install blessed; # pulled in auto if pip install django_q
 
-mkdir /var/log/django_q
+mkdir /var/log/django_q;
 cp $ROOT_DIR/static/DefaultConfigFiles/manage_django_q/django_q_rc.d \
 /usr/local/etc/rc.d/django_q;
 echo "django_q_enable=\"YES\"" >> /etc/rc.conf;
@@ -100,7 +100,7 @@ mkdir -p /var/log/uwsgi;
 mkdir /sockets;
 
 # create log directory & file
-mkdir /var/log/django_main
+mkdir /var/log/django_main;
 
 # set permissions
 chmod +x $ROOT_DIR/static/DefaultConfigFiles/set_permissions.sh;

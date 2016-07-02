@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 
 def update_callback(task):
 	process_id = 'snapshot_updater'
+	error_blurb = 'Unable to display snapshots - do any exist?'
 	# delete the task id from the task manager if no error, else add error flag
 	if task.result is True:
 		TaskManager.objects.update(task_id=task.id,
@@ -19,7 +20,7 @@ def update_callback(task):
 		                           process_id=process_id,
 		                           error_flag=True,
 		                           complete=True,
-		                           error_detail=None)
+		                           error_detail=error_blurb)
 
 
 def delete_callback(task):

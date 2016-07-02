@@ -88,6 +88,11 @@ users who're members of the wheel group are able to run commands as root with su
 
 b) ZFS is installed and enabled on your system.
 
+c) For this DEMO version, ensure that there is at least one zpool created on your
+system prior to installation. Ultimately, it's intended that this utility
+will offer the option to create new zpools, however this has not yet been
+implemented.
+
 DEPENDENCIES
 ------------
 
@@ -166,19 +171,6 @@ with that to which you'd like to allow access:
     
 USAGE
 -----
-
-##### Choose to test with dummy data or live ZFS datasets
-
-By default, this prototype demo is configured to use DUMMY data (provided).
-
-You can use the dummy datasets without the need to have ZFS installed on your system.
-
-To test on live ZFS datasets, change the "SYSTEM_CALL_SCRIPT_NAME" variable in 
-the following file:
-
-    /usr/local/freebsdashboard/freebsdashboard/settings.py
-    
-Change the variable from "demo/system_calls_demo.sh" to "system_calls.sh"
 
 ##### Access the web-gui dashboard
 

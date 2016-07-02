@@ -18,10 +18,13 @@
                             <p>For example, enter MyNewFileSystem, or MyNewFileSystem/MyNewFileSystemTwo.</p>
                         </div>
                         {% for form in formset %}
-                            <div class="form_filesystems">
+                            <div class="form_filesystems" style="margin-bottom:1em;">
                                 {{ form.datasets }} / {{ form.filesystem }}
                                 <div class="zws-red-alert">{{ form.dataset.errors }}</div>
                                 <div class="zws-red-alert">{{ form.filesystem.errors }}</div>
+                            </div>
+                            <div class="form_quota" style="margin-bottom:1em;">
+                                <span class="label label-primary">{{ form.quota.label }}</span> {{ form.quota }}GB {{ form.quota.errors }}
                             </div>
                             <div class="form_compression" style="margin-bottom:1em;"><span
                                     class="label label-primary">{{ form.compression.label }}</span> {{ form.compression }} {{ form.compression.errors }}

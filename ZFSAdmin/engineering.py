@@ -75,7 +75,8 @@ def create_filesystems(data=None):
                      'create_filesystems',
                      processed_data.get('name'),
                      processed_data.get('compression'),
-                     processed_data.get('sharenfs')],
+                     processed_data.get('sharenfs'),
+                     processed_data.get('quota')],
                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
                 if settings.DEBUG:
                     logger.error('STDOUT: {}'.format(result.stdout))
@@ -215,5 +216,6 @@ def process_data(stdout_str=None, submitted_data=None, data_type=None):
                                            re.sub(r'[^A-Za-z0-9-_/]', '',
                                                   submitted_data.get('filesystem')).strip('/')),
                     'compression': 'on' if submitted_data.get('compression') else 'off',
-                    'sharenfs': 'on' if submitted_data.get('sharenfs') else 'off'}
+                    'sharenfs': 'on' if submitted_data.get('sharenfs') else 'off',
+                    'quota': '{}G'.format(submitted_data.get('quota')) if submitted_data.get('quota') else 'none'}
     return return_data if return_data else None

@@ -22,6 +22,7 @@ class NewFileSystem(forms.Form):
                                  required=False)
     compression = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     sharenfs = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+    quota = forms.IntegerField(widget=forms.TextInput(attrs={'required': False, 'size': 5}), initial=0)
 
     def __init__(self, *args, **kwargs):
         dataset_choices = kwargs.pop('choices', None)
@@ -34,6 +35,7 @@ class NewFileSystem(forms.Form):
         self.fields['datasets'].label = "Select Dataset"
         self.fields['compression'].label = "Use compression"
         self.fields['sharenfs'].label = "Share with NFS"
+        self.fields['quota'].label = "File system quota (0 is unlimited)"
         # choice setup
         self.fields['datasets'].choices = dataset_choices
         self.fields['datasets'].initial = dataset_initial_value

@@ -6,8 +6,7 @@ app_name = 'ZFSAdmin'
 urlpatterns = [
 	# /
 	url(r'^$', views.IndexView.as_view(), name='index'),
-	url(r'^snapshot_task_manager', views.snapshot_task_manager, name='snapshot_task_manager'),
-	url(r'^update_snapshots', views.update_snapshot_list, name='update_snapshots'),
+	url(r'^snapshot_update', views.snapshot_update, name='snapshot_update'),
 	url(r'^take_snapshot$', views.TakeSnapshotView.as_view(), name='take_snapshot'),
 	url(r'^delete_snapshots', views.delete_snapshots, name='delete_snapshots'),
 	url(r'^clone_snapshots', views.clone_snapshots, name='clone_snapshots'),

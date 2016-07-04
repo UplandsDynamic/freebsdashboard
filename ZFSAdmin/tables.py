@@ -1,5 +1,4 @@
 import django_tables2 as tables
-from .models import ZfsSnapshot
 from .templatetags import zfsadmin_extras
 
 
@@ -19,7 +18,7 @@ class SnapshotTable(tables.Table):
 		return zfsadmin_extras.zero_to_unset(value)
 
 	class Meta:
-		model = ZfsSnapshot
+		# model = ZfsSnapshot
 		# adds classes to <table> tag
 		attrs = {"class": "table table-hover snapshot-table"}
 		fields = ('dataset', 'datetime_created', 'retention', 'name',)

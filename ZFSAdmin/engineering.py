@@ -14,53 +14,53 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def update_all_zfs_data():
-    # UPDATES MODELS WITH ALL LATEST ZFS DATA
-    zfs_snapshots = update_zfs_data(datatype='LIST_SNAPSHOTS')
-    zfs_datasets = update_zfs_data(datatype='FILE_SYSTEMS')
-    if zfs_datasets and zfs_snapshots:
-        return True
-    return None
-
-
 def update_zfs_data(datatype=None):
     # RETRIEVES THE LATEST ZFS SNAPSHOT DATA & UPDATES MODEL
-    limit = 5 if settings.TEST_MODE else ''
+    process_result = []
     if datatype == 'LIST_SNAPSHOTS':
-        std_out = subprocess.run(
+        result = subprocess.run(
             ['{}static/DefaultConfigFiles/{}'.format(settings.PROJECT_ROOT, settings.SYSTEM_CALL_SCRIPT_NAME),
              'list_snapshots'],
-            stdout=subprocess.PIPE, universal_newlines=True).stdout
-        snapshot_data = process_data(stdout_str=std_out, data_type='snapshots') if std_out else None
-        if snapshot_data:
-            # clear the model/database first
-            ZfsSnapshot.objects.all().delete()
-            for snapshot in snapshot_data[:limit]:
-                # add snapshots_demo.txt to the database
-                created = ZfsSnapshot.objects.create(
-                    datetime_created=snapshot['datetime'],
-                    dataset=snapshot['dataset'],
-                    retention=snapshot['longevity'],
-                    name=snapshot['name']
-                )
-            return True
-        return None
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        if settings.DEBUG:
+            logger.error('STDOUT: {}'.format(result.stdout))
+        if not result:
+            process_result.append({'error': 'No snapshots were obtained; '
+                                            'there was an error initialising the process'})
+        if result.stderr and result.stderr != 'Password:':
+            # Note: disregard "Password:" as an error - it's simply  passed to stderr during sudo -S process.
+            process_result.append({'error': result.stderr})
+        if result.stdout:
+            snapshot_data = process_data(stdout_str=result.stdout, data_type='snapshots')
+            if snapshot_data:
+                for snapshot in snapshot_data:
+                    process_result.append({'process_result': {'task': 'snapshots_task',
+                                                              'datetime_created': snapshot.get('datetime'),
+                                                              'dataset': snapshot.get('dataset'),
+                                                              'retention': snapshot.get('longevity'),
+                                                              'name': snapshot.get('name')}})
     elif datatype == 'FILE_SYSTEMS':
-        # RETRIEVES LATEST ZFS FILESYSTEM NAMES DATA & UPDATES MODEL
-        std_out = subprocess.run(
+        # RETRIEVES LATEST ZFS FILESYSTEM NAMES DATA
+        result = subprocess.run(
             ['{}static/DefaultConfigFiles/{}'.format(settings.PROJECT_ROOT, settings.SYSTEM_CALL_SCRIPT_NAME),
              'show_filesystems'],
-            stdout=subprocess.PIPE, universal_newlines=True).stdout
-        filesystems = process_data(stdout_str=std_out, data_type='filesystems') if std_out else None
-        if filesystems:
-            # clear the model/database first
-            ZfsFileSystems.objects.all().delete()
-            for fs in filesystems:
-                # add filesystems to the database
-                created = ZfsFileSystems.objects.create(filesystem_name=fs['filesystem'],
-                                                        zpool=fs['zpool'])
-            return True
-        return None
+            stdout=subprocess.PIPE, universal_newlines=True)
+        if settings.DEBUG:
+            logger.error('STDOUT: {}'.format(result.stdout))
+        if not result:
+            process_result.append({'error': 'No datasets were obtained; '
+                                            'there was an error initialising the process'})
+        # Note: disregard "Password:" as an error - it's simply  passed to stderr during sudo -S process.
+        if result.stderr and result.stderr != 'Password:':
+            process_result.append({'error': result.stderr})
+        if result.stdout:
+            filesystems = process_data(stdout_str=result.stdout, data_type='filesystems')
+            if filesystems:
+                for fs in filesystems:
+                    process_result.append({'process_result': {'task': 'datasets_task',
+                                                              'filesystem_name': fs.get('filesystem'),
+                                                              'zpool': fs.get('zpool')}})
+    return process_result
 
 
 def create_filesystems(data=None):

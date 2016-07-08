@@ -5,8 +5,6 @@
 {% load tz %}
 <div class="table-container">
     {% block snapshot_table %}
-        <hr>
-        <h1><span class="label label-success">Existing ZFS Snapshots</span></h1>
         <table{% if table.attrs %} {{ table.attrs.as_html }}{% endif %}>
             {% block table.thead %}
                 {% if table.show_header %}

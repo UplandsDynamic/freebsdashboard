@@ -14,52 +14,51 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def update_zfs_data(datatype=None):
+def update_zfs_data():
     # RETRIEVES THE LATEST ZFS SNAPSHOT DATA & UPDATES MODEL
     process_result = []
-    if datatype == 'LIST_SNAPSHOTS':
-        result = subprocess.run(
-            ['{}static/DefaultConfigFiles/{}'.format(settings.PROJECT_ROOT, settings.SYSTEM_CALL_SCRIPT_NAME),
-             'list_snapshots'],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-        if settings.DEBUG:
-            logger.error('STDOUT: {}'.format(result.stdout))
-        if not result:
-            process_result.append({'error': 'No snapshots were obtained; '
-                                            'there was an error initialising the process'})
-        if result.stderr and result.stderr != 'Password:':
-            # Note: disregard "Password:" as an error - it's simply  passed to stderr during sudo -S process.
-            process_result.append({'error': result.stderr})
-        if result.stdout:
-            snapshot_data = process_data(stdout_str=result.stdout, data_type='snapshots')
-            if snapshot_data:
-                for snapshot in snapshot_data:
-                    process_result.append({'process_result': {'task': 'snapshots_task',
-                                                              'datetime_created': snapshot.get('datetime'),
-                                                              'dataset': snapshot.get('dataset'),
-                                                              'retention': snapshot.get('longevity'),
-                                                              'name': snapshot.get('name')}})
-    elif datatype == 'FILE_SYSTEMS':
-        # RETRIEVES LATEST ZFS FILESYSTEM NAMES DATA
-        result = subprocess.run(
-            ['{}static/DefaultConfigFiles/{}'.format(settings.PROJECT_ROOT, settings.SYSTEM_CALL_SCRIPT_NAME),
-             'show_filesystems'],
-            stdout=subprocess.PIPE, universal_newlines=True)
-        if settings.DEBUG:
-            logger.error('STDOUT: {}'.format(result.stdout))
-        if not result:
-            process_result.append({'error': 'No datasets were obtained; '
-                                            'there was an error initialising the process'})
+    snapshot_result = subprocess.run(
+        ['{}static/DefaultConfigFiles/{}'.format(settings.PROJECT_ROOT, settings.SYSTEM_CALL_SCRIPT_NAME),
+         'list_snapshots'],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    if settings.DEBUG:
+        logger.error('STDOUT: {}'.format(snapshot_result.stdout))
+    if not snapshot_result:
+        process_result.append({'error': 'No snapshots were obtained; '
+                                        'there was an error initialising the process'})
+    if snapshot_result.stderr and snapshot_result.stderr != 'Password:':
         # Note: disregard "Password:" as an error - it's simply  passed to stderr during sudo -S process.
-        if result.stderr and result.stderr != 'Password:':
-            process_result.append({'error': result.stderr})
-        if result.stdout:
-            filesystems = process_data(stdout_str=result.stdout, data_type='filesystems')
-            if filesystems:
-                for fs in filesystems:
-                    process_result.append({'process_result': {'task': 'datasets_task',
-                                                              'filesystem_name': fs.get('filesystem'),
-                                                              'zpool': fs.get('zpool')}})
+        process_result.append({'error': snapshot_result.stderr})
+    if snapshot_result.stdout:
+        snapshot_data = process_data(stdout_str=snapshot_result.stdout, data_type='snapshots')
+        if snapshot_data:
+            for snapshot in snapshot_data:
+                process_result.append({'process_result_snapshots': {'task': 'snapshots_task',
+                                                          'datetime_created': snapshot.get('datetime'),
+                                                          'dataset': snapshot.get('dataset'),
+                                                          'retention': snapshot.get('longevity'),
+                                                          'name': snapshot.get('name')}})
+    # RETRIEVES LATEST ZFS FILESYSTEM NAMES DATA
+    filesystem_result = subprocess.run(
+        ['{}static/DefaultConfigFiles/{}'.format(settings.PROJECT_ROOT, settings.SYSTEM_CALL_SCRIPT_NAME),
+         'show_filesystems'],
+        stdout=subprocess.PIPE, universal_newlines=True)
+    if settings.DEBUG:
+        logger.error('STDOUT: {}'.format(filesystem_result.stdout))
+    if not filesystem_result:
+        process_result.append({'error': 'No datasets were obtained; '
+                                        'there was an error initialising the process'})
+    # Note: disregard "Password:" as an error - it's simply  passed to stderr during sudo -S process.
+    if filesystem_result.stderr and filesystem_result.stderr != 'Password:':
+        process_result.append({'error': filesystem_result.stderr})
+    if filesystem_result.stdout:
+        filesystems = process_data(stdout_str=filesystem_result.stdout, data_type='filesystems')
+        if filesystems:
+            for fs in filesystems:
+                # TODO: RUN OTHER PROCESSES TO OBTAIN FILESYSTEM PROPERTIES HERE, AND ADD TO THE RETURN DICT
+                process_result.append({'process_result_filesystems': {'task': 'filesystems_task',
+                                                          'filesystem_name': fs.get('filesystem'),
+                                                          'zpool': fs.get('zpool')}})
     return process_result
 
 
@@ -81,6 +80,7 @@ def create_filesystems(data=None):
                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
                 if settings.DEBUG:
                     logger.error('STDOUT: {}'.format(result.stdout))
+                    logger.error('STDERR: {}'.format(result.stderr))
                 if not result:
                     process_result.append({'error': 'No filesystems were created; '
                                                     'there was an error initialising the process'})
@@ -93,18 +93,19 @@ def create_filesystems(data=None):
     return process_result
 
 
-def delete_filesystem(fs_name=None):
+def delete_filesystem(fs_names=None):
     # DELETES FILESYSTEM OF PASSED IN NAME
     process_result = []
-    if fs_name:
-        result = subprocess.run(
-            ['{}static/DefaultConfigFiles/{}'.format(settings.PROJECT_ROOT, settings.SYSTEM_CALL_SCRIPT_NAME),
-             'delete_filesystem', fs_name],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-        if result.stderr:
-            process_result.append({'error': result.stderr})
-        else:
-            process_result.append({'success': result.stdout})
+    if fs_names:
+        for fs in fs_names:
+            result = subprocess.run(
+                ['{}static/DefaultConfigFiles/{}'.format(settings.PROJECT_ROOT, settings.SYSTEM_CALL_SCRIPT_NAME),
+                 'delete_filesystem', fs],
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+            if result.stderr:
+                process_result.append({'error': result.stderr})
+            else:
+                process_result.append({'success': result.stdout})
     else:
         process_result.append({'error': 'No file systems  were passed for deletion!'})
     return process_result

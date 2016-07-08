@@ -3,17 +3,8 @@ from django.core.validators import MaxLengthValidator
 from .validators import validate_filesystem_value
 
 
-class FileSystemSelection(forms.Form):
-    filesystems = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple)
-
-    def __init__(self, *args, **kwargs):
-        choices = kwargs.pop('choices', None)
-        super(FileSystemSelection, self).__init__(*args, **kwargs)
-        self.fields['filesystems'].choices = choices
-
-
-class NewFileSystem(forms.Form):
-    datasets = forms.ChoiceField(widget=forms.Select)
+class ManageFileSystems(forms.Form):
+    datasets = forms.ChoiceField(widget=forms.Select())
     # filesystem = forms.Textarea(widget=forms.Textarea, validators=[MaxLengthValidator(250)])
     filesystem = forms.CharField(widget=forms.TextInput(attrs={'size': 30}),
                                  max_length=255,
@@ -29,7 +20,7 @@ class NewFileSystem(forms.Form):
         dataset_initial_value = kwargs.pop('initial', None)
         compression_choice = kwargs.pop('compression', True)
         sharenfs_choice = kwargs.pop('sharenfs', False)
-        super(NewFileSystem, self).__init__(*args, **kwargs)
+        super(ManageFileSystems, self).__init__(*args, **kwargs)
         # labels
         self.fields['filesystem'].label = "Enter filsystem name"
         self.fields['datasets'].label = "Select Dataset"
@@ -42,3 +33,16 @@ class NewFileSystem(forms.Form):
         self.fields['compression'].initial = compression_choice
         self.fields['sharenfs'].initial = sharenfs_choice
 
+
+class DatasetDeletion(forms.Form):
+    datasets = forms.ChoiceField(widget=forms.Select())
+
+    def __init__(self, *args, **kwargs):
+        dataset_choices = kwargs.pop('choices', None)
+        dataset_initial_value = kwargs.pop('initial', None)
+        super(DatasetDeletion, self).__init__(*args, **kwargs)
+        # labels
+        self.fields['datasets'].label = "Select Dataset"
+        # choice setup
+        self.fields['datasets'].choices = dataset_choices
+        self.fields['datasets'].initial = dataset_initial_value

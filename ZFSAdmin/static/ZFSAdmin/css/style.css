@@ -9,16 +9,56 @@ body {
     font-family: 'Roboto-Bold', monospace;
 }
 
+select {
+    margin-bottom:1em;
+}
+
+div#main_body {
+    min-height:760px;
+}
+
 hr {
-    margin-bottom: 0;
+    margin: 1em 0 1em 0;
 }
 
 h1 {
-    margin-bottom: 1em;
+    margin-bottom: 0em;
 }
 
 h2 {
     font-size: 1.2em;
+}
+
+div.out-of-panel-footer {
+    margin: 1em;
+}
+
+div#main_buttons_container {
+    margin: 1em 0 0.5em 0;
+    min-height: 3.5em;
+}
+
+div#button_container {
+    margin: 0 0 0.5em 0;
+    min-height: 1.5em;
+}
+
+div#snapshot_admin_btn_group{
+
+}
+
+div#check_buttons {
+    position: relative;
+    float:right;
+}
+
+div.submit{
+    margin:1em 0 1em 0;
+}
+
+div#updating{
+    margin:0.5em 0 0.5em 0;
+    min-height:2em;
 }
 
 div#existing_filesystems, div#create_filesystem_form_1 {

@@ -2,21 +2,38 @@
 {% load static %}
 {% block title %}FreeBSDashboard ZFSAdmin{% endblock %}
 {% block the_body %}
-    <div id="button_container" style="margin-bottom:1em;min-height:2.5em;">
+    <div id="main_buttons_container">
+        <div id="main_buttons">
+            <button type="button" class="btn btn-lg btn-primary" id="display_snapshots_button"><span
+                    class="glyphicon glyphicon-list"></span> Show ZFS Snapshots
+            </button>
+            <button type="button" class="btn btn-lg btn-primary" id="take_snapshots_button"><span
+                    class="glyphicon glyphicon-duplicate"></span> Take ZFS Snapshots
+            </button>
+            <button type="button" class="btn btn-lg btn-primary" id="change_filesystems"><span
+                    class="glyphicon glyphicon-briefcase"></span> Administer File Systems
+            </button>
+        </div>
+    </div>
+    <div id="button_container">
         <div id="button_div">
             <div class="btn-toolbar" role="toolbar" aria-label="Snapshot administration">
-                <div class="btn-group" role="group" aria-label="Filter dataset">
+                <div id="snapshot_admin_btn_group" class="btn-group" role="group" aria-label="Filter dataset">
                     <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
                             aria-haspopup="true"
                             aria-expanded="false"
                             id="dataset-filter"><span class="glyphicon glyphicon-filter"
                                                       style="margin-right:0.5em;"></span>
-                        Filter File System <span class="caret"></span>
+                        Filter Dataset <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a href="{% url 'ZFSAdmin:index' %}">All</a></li>
+                        <li>
+                            <a href="{% url 'ZFSAdmin:index' %}?task_id={{ task_id }}&filter=all&process=snapshot_update">All</a>
+                        </li>
                         {% for ds in datasets %}
-                            <li><a href="{% url 'ZFSAdmin:index' %}?filter={{ ds }}">{{ ds }}</a></li>
+                            <li>
+                                <a href="{% url 'ZFSAdmin:index' %}?task_id={{ task_id }}&filter={{ ds }}&process=snapshot_update">{{ ds }}</a>
+                            </li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -24,16 +41,8 @@
                         class="glyphicon glyphicon-refresh"
                         style="margin-right:0.5em;"></span>Update List
                 </button>
-                <button type="button" class="btn btn-primary" id="change_filesystems"><span
-                        class="glyphicon glyphicon-briefcase"
-                        style="margin-right:0.5em;"></span>Administer File Systems
-                </button>
-                <button type="button" class="btn btn-primary" id="take_snapshot"><span
-                        class="glyphicon glyphicon-duplicate"
-                        style="margin-right:0.5em;"></span>Take Snapshot
-                </button>
-                <div class="btn-group" role="group" aria-label="Action on selected">
-                    <button type="button" class="btn btn-warning" id="clone_selected"><span
+                <div class="btn-group" id="check_buttons" role="group" aria-label="Action on selected">
+                    <button type="button" class="btn btn-primary" id="clone_selected"><span
                             class="glyphicon glyphicon-check" style="margin-right:0.5em;"></span><span
                             class="glyphicon glyphicon-duplicate"
                             style="margin-right:0.5em;"></span>Clone
@@ -51,16 +60,127 @@
     </div>
     <div class="progress" id="updating"></div>
     <div id="messages"></div>
-    <div class="table-responsive">
-        {% if table %}
-            {#            {% render_table table %}#}
-            <div id="snapshot_table">
-                {% block snapshot_table %}{% endblock %}
-                {% block pagination %}{% endblock %}
+    <div class="activity_container">
+        <hr>
+        <div id="take_snapshot_view">
+            <div class="alert alert-info">
+                <p>Select the dataset(s) you'd like to snapshot from the list below.</p>
+                <p>You may select multiple.</p>
             </div>
-        {% endif %}
+            <div class="form-group">
+                <form role="form" action="." method="post">
+                    <select multiple id="datasets_select" name="datasets" class="form-control" style="min-height:600px">
+                        {% for d in datasets %}
+                            <option value="{{ d }}">{{ d }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="submit">
+                        <button type="button" class="btn btn-success" id="datasets_selected"><span
+                                class="glyphicon glyphicon-duplicate"
+                                style="margin-right:0.5em;"></span> Take
+                            Snapshots
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div id="snapshot_table">
+            <div class="table-responsive">
+                {% if table %}
+                    {% block snapshot_table %}{% endblock %}
+                    {% block pagination %}{% endblock %}
+                {% endif %}
+            </div>
+        </div>
+        <div id="filesystem_management">
+            <div id="button_container" style="margin-bottom:1em;min-height:2.5em;">
+                <div id="manage_filesystem_button_div">
+                    <div class="btn-toolbar" role="toolbar" aria-label="Snapshot administration">
+                        <div class="btn-group" role="group" aria-label="Action on selected">
+                            <button type="button" class="btn btn-success" id="create_filesystems"><span
+                                    class="glyphicon glyphicon-plus-sign"
+                                    style="margin-right:0.5em;"></span>Create File Systems
+                            </button>
+                            <button type="button" class="btn btn-danger" id="delete_filesystems"><span
+                                    class="glyphicon glyphicon-minus-sign"
+                                    style="margin-right:0.5em;"></span>Delete File Systems
+                            </button>
+                            <button type="button" class="btn btn-info" id="filesystem_props"><span
+                                    class="glyphicon glyphicon-minus-sign"
+                                    style="margin-right:0.5em;"></span>Show File System Properties
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <form role="form" id="create_filesystems_form" action="" method="post" onsubmit="event.preventDefault();">
+                <div class="form-group create_filesystem_form">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div id="create_filesystem_form" class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
+                                <h2><span class="glyphicon glyphicon-plus-sign"></span> Create File System(s)</h2>
+                                {% for form in formset %}
+                                    {{ form.non_form_errors }}
+                                {% endfor %}
+                                {{ formset.non_form_errors }}
+                                {% csrf_token %}
+                                <div class="form_info alert alert-info">
+                                    <p>Enter the new filesystem details here, selecting the desired zpool/dataset
+                                        first.</p>
+                                    <p>For example, enter MyNewFileSystem, or MyNewFileSystem/MyNewFileSystemTwo.</p>
+                                </div>
+                                {% for form in formset %}
+                                    <div class="form_filesystems">
+                                        {{ form.datasets }} / {{ form.filesystem }}
+                                        <div class="zws-red-alert">{{ form.dataset.errors }}</div>
+                                        <div class="zws-red-alert">{{ form.filesystem.errors }}</div>
+                                    </div>
+                                    <div class="form_quota" style="margin-bottom:1em;">
+                                        <span class="label label-primary">{{ form.quota.label }}</span> {{ form.quota }}GB {{ form.quota.errors }}
+                                    </div>
+                                    <div class="form_compression" style="margin-bottom:1em;"><span
+                                            class="label label-primary">{{ form.compression.label }}</span> {{ form.compression }} {{ form.compression.errors }}
+                                    </div>
+                                    <div class="form_sharenfs" style="margin-bottom:1em;"><span
+                                            class="label label-primary">{{ form.sharenfs.label }}</span> {{ form.sharenfs }} {{ form.sharenfs.errors }}
+                                    </div>
+                                {% endfor %}
+                                {{ formset.management_form }}
+                                <button class="btn btn-success" id="create_filesystems_button">Create File System(s)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+        </form>
+        <form action="" method="post" id="filesystem_deletion_form" role="form" onsubmit="event.preventDefault();">
+            <div class="container-fluid">
+                <div class="row">
+                    <div id="delete_filesystem_form" class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
+                        <h2><span class="glyphicon glyphicon-minus-sign"></span> Delete Dataset</h2>
+                        {{ dataset_deletion_form.non_form_errors }}
+                        {% csrf_token %}
+                        <div class="form_info alert alert-info">
+                            <p>Select the dataset you wish to delete from the list.</p>
+                        </div>
+                        {{ dataset_deletion_form.datasets }} {{ dataset_deletion_form.errors }}
+                        <button class="btn btn-danger" id="delete">Delete Selected Dataset</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="container-fluid">
+            <div class="row">
+                <div id="show_filesystem_props" class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
+                    <h2><span class="glyphicon glyphicon-cog"></span> Show File System Properties</h2>
+                    <p>Coming soon to a view near you ...</p>
+                </div>
+            </div>
+        </div>
     </div>
-
+    </div>
     <div id="dialog-confirm"></div>
 
 {% endblock %}
@@ -69,240 +189,537 @@
     <script>
         $(document).ready(function () {
 
-            var ERROR_MESSAGE = '<div class="alert alert-danger" role="alert">An update error occurred!</div>';
-            var INITIATE_DELETE_MESSAGE = '<div class="alert alert-warning" role="alert">Initiating deletion ...</div>';
-            var INITIATE_CLONE_MESSAGE = '<div class="alert alert-warning" role="alert">Initiating cloning ...</div>';
-            var STATUS_BAR_MESSAGE = 'Updating ... please wait ... patience is a virtue!';
-            var SNAPSHOT_DELETION_DIALOG_TITLE = 'Confirm that you wish to delete the following:';
-            var SNAPSHOT_CLONE_DIALOG_TITLE = 'Confirm that you wish to clone the following:';
+                    var ERROR_MESSAGE = '<div class="alert alert-danger" role="alert">An error occurred!</div>';
+                    var SUCCESS_MESSAGE = '<div class="alert alert-success" role="alert">Action successfully completed! Please wait ...</div>';
+                    var INITIATE_DELETE_MESSAGE = '<div class="alert alert-warning" role="alert">Initiating deletion ...</div>';
+                    var INITIATE_SNAPSHSOT_MESSAGE = '<div class="alert alert-warning" role="alert">Initiating snapshotting ...</div>';
+                    var INITIATE_CLONE_MESSAGE = '<div class="alert alert-warning" role="alert">Initiating cloning ...</div>';
+                    var INITIATE_FILESYSTEMS_CREATE_MESSAGE = '<div class="alert alert-warning" role="alert">Initiating file system creation ...</div>';
+                    var SNAPSHOT_DELETION_SUCCESS_MESSAGE = '<div class="alert alert-warning" role="alert">Snaphot deletion initiated ...</div>';
+                    var SNAPSHOT_CLONE_SUCCESS_MESSAGE = '<div class="alert alert-warning" role="alert">Snaphot cloning initiated ...</div>';
+                    var SNAPSHOT_TAKE_SUCCESS_MESSAGE = '<div class="alert alert-warning" role="alert">Snaphot taking initiated ...</div>';
+                    var FILESYSTEM_DELETION_SUCCESS_MESSAGE = '<div class="alert alert-warning" role="alert">File system deletion initiated ...</div>';
+                    var FILESYSTEM_CREATE_SUCCESS_MESSAGE = '<div class="alert alert-warning" role="alert">File system creation initiated ...</div>';
+                    var STATUS_BAR_MESSAGE = 'Updating ... please wait ... patience is a virtue!';
+                    var SNAPSHOT_DELETION_DIALOG_TITLE = 'Confirm that you wish to delete the following:';
+                    var SNAPSHOT_CLONE_DIALOG_TITLE = 'Confirm that you wish to clone the following:';
+                    var SNAPSHOT_TAKE_DIALOG_TITLE = 'Confirm that you wish to take snapshots of the following:';
+                    var FILESYSTEM_DELETION_DIALOG_TITLE = "The following file system and ALL OF IT'S DESCENDENT " +
+                            "FILESYSTEMS AND SNAPSHOTS will be permanently destroyed! " +
+                            "Is that really what you want? 'Cause that's what'll happen!";
+                    var FILESYSTEM_CREATION_DIALOG_TITLE = "The following file systems will be created. Is this okay?";
 
-            function init() {
-                /* initial state */
-                var updating = '{{ updating }}';
-                $('#updating').hide();
-                $('.panel-footer').html("No running tasks.");
-                $('#button_div').hide();
-                $('#snapshot_table').hide();
-                $('#button_div').hide();
-                /* if not updating, show the table etc */
-                if (updating != 'true') {
-                    $('#updating').hide();
-                    $('.panel-footer').html("No running tasks.");
-                    $('#button_div').show("slide", {"direction": "right"}, 1000);
-                    $('#snapshot_table').show("slide", {"direction": "left"}, 1000);
-                    $('#button_div').show("slide", {"direction": "right"}, 1000);
-                }
-                /* start the listeners */
-                ButtonListener();
-                /* run checked to bring in the table */
-                TaskUpdateStatusChecker(0);
-                /* hide delete checkboxes if not logged in as superuser */
-                {% if not request.user.is_superuser %}
-                    $('td.name, th.name').hide();
-                {% endif %}
-                /* add icons to column name - easier to do this here than in django_tables2 code */
-                $('th.name').html('<span class="glyphicon glyphicon-check" style="margin:0em 1em 0em 0em;"></span>Select for Action');
-            }
+                    function init() {
+                        /* initial state */
+                        var updating = '{{ updating }}';
+                        $('#updating').hide();
+                        $('.panel-footer').html("No running tasks.");
+                        $('#button_div').hide();
+                        $('#snapshot_table').hide();
+                        $('#take_snapshot_view').hide();
+                        $('#button_div').hide();
+                        $('#main_buttons').hide();
+                        /* if not updating, show the table etc */
+                        if (updating != 'true') {
+                            $('#updating').hide();
+                            $('#filesystem_management').hide();
+                            $('.panel-footer').html("No running tasks.");
+                            $('#button_div').show("slide", {"direction": "right"}, 1000);
+                            $('#main_buttons').show("slide", {"direction": "left"}, 1000);
+                            $('#snapshot_table').show("slide", {"direction": "left"}, 1000);
+                            $('#button_div').show("slide", {"direction": "right"}, 1000);
+                            $('#manage_filesystem_button_div').hide();
+                            $('#manage_filesystem_button_div').show("slide", {"direction": "left"}, 1000);
+                            $('#create_filesystem_form').hide();
+                            $('#delete_filesystem_form').hide();
+                            $('#show_filesystem_props').hide();
+                        }
+                        /* start the listeners */
+                        ButtonListener();
+                        /* run checked to bring in the table */
+                        {% if stop_updating == 'true' %}
+                            TaskUpdateStatusChecker(0, 'snapshot_update', null, false);
+                        {%  else %}
+                            TaskUpdateStatusChecker(0, 'snapshot_update', null, true);
+                        {% endif %}
+                        /* hide delete checkboxes if not logged in as superuser */
+                        {% if not request.user.is_superuser %}
+                            $('td.name, th.name').hide();
+                        {% endif %}
+                        /* add icons to column name - easier to do this here than in django_tables2 code */
+                        $('th.name').html('<span class="glyphicon glyphicon-check" style="margin:0em 1em 0em 0em;"></span>Select for Action');
+                    }
 
-            function TaskUpdateStatusChecker(loop_count) {
-                var updating = '{{ updating }}';
-                if (updating !== 'false') {
-                    if (loop_count < 9) {
-                        /* update progress checker - this loops until no update task is outstanding */
-                        $.ajax({
-                            url: "{% url 'ZFSAdmin:snapshot_update' %}?task_id={{ snapshot_task }}",
-                            type: "GET",
-                            dataType: "json",
-                            success: function (data) {
-                                /* IF NO UPDATE TASK RUNNING */
-                                if (data.updating == 'false') {
-                                    /* UPDATE TASK JUST COMPLETED - REQUIRES PAGE RELOAD TO UPDATE SNAPSHOT TABLE */
-                                    if (data.error == 'false') {
-                                        window.location.replace("{% url 'ZFSAdmin:index' %}?task_id={{ snapshot_task }}");
+                    function TaskUpdateStatusChecker(loop_count, process, task_id, updating) {
+                        if (!task_id) {
+                            task_id = '{{ task_id }}';
+                        }
+                        if (updating == true) {
+                            if (loop_count < 9) {
+                                /* update progress checker - this loops until no update task is outstanding */
+                                $.ajax({
+                                    url: "{% url 'ZFSAdmin:task_checker' %}?task_id=" + task_id,
+                                    type: "GET",
+                                    dataType: "json",
+                                    success: function (data) {
+                                        /* IF NO UPDATE TASK RUNNING */
+                                        if (data.updating == 'false') {
+                                            if (data.error == 'false') {
+                                                if (process != 'snapshot_update') {
+                                                    $('#messages').html(SUCCESS_MESSAGE);
+                                                }
+                                                setTimeout(function () {
+                                                    window.location.replace("{% url 'ZFSAdmin:index' %}?task_id=" + task_id + "&process=" + process);
+                                                }, 5000);
+                                            } else {
+                                                $('#button_div').hide("slide", {"direction": "right"}, 1000);
+                                                $('#main_buttons').hide("slide", {"direction": "left"}, 1000);
+                                                $('#updating').hide('slide, 1000');
+                                                $('#messages').html(ERROR_MESSAGE + '<div class="alert alert-info">Error detail: ' + data.error_detail + '</div>');
+                                                setTimeout(function () {
+                                                    window.location.replace("{% url 'ZFSAdmin:index' %}");
+                                                }, 5000);
+                                            }
+                                        }
+                                        /* IF UPDATE TASK RUNNING */
+                                        else if (data.updating == 'true') {
+                                            $('#updating').html('<div class="progress-bar progress-bar-striped ' +
+                                                    'progress-bar-warning active" ' +
+                                                    'role="progressbar" aria-valuenow="100" ' +
+                                                    'aria-valuemin="0" aria-valuemax="100" ' +
+                                                    'style="width:100%;font-size:1.3em;">' +
+                                                    '<span>' + STATUS_BAR_MESSAGE + '</span>' +
+                                                    '</div>');
+                                            $('.panel-footer').html("Updating in progress ...");
+                                            $('#updating').show("slide", 1000);
+                                            setTimeout(function () {
+                                                /* loop the loop every 7 seconds (max 10 times - loopcount) */
+                                                TaskUpdateStatusChecker(++loop_count, process, task_id, true);
+                                            }, 7000);
+                                        }
+                                    },
+                                    error: function (xhr, status) {
+                                        $('#messages').html(ERROR_MESSAGE);
+                                    },
+                                    complete: function (xhr, status) {
+                                    }
+                                });
+                            } else {
+                                $('#messages').html(ERROR_MESSAGE);
+                                $('#updating').hide("slide", 1000);
+                            }
+                        }
+                    }
+
+                    /* button listeners */
+                    function ButtonListener() {
+                        /* display existing snapshots */
+                        document.getElementById("display_snapshots_button").onclick = function () {
+                            $('#filesystem_management').hide("slide", {"direction": "left"}, 1000, function () {
+                                $('#take_snapshot_view').hide("slide", {"direction": "left"}, 1000, function () {
+                                    $('#snapshot_table').show("slide", {"direction": "left"}, 1000);
+                                });
+                            });
+                        };
+                        /* update snapshot list */
+                        document.getElementById("update_list").onclick = function () {
+                            window.location.replace("{% url 'ZFSAdmin:index' %}?process=snapshot_update");
+                        };
+                        /* take snaphots */
+                        document.getElementById("take_snapshots_button").onclick = function () {
+                            $('#filesystem_management').hide("slide", {"direction": "left"}, 1000, function () {
+                                $('#snapshot_table').hide("slide", {"direction": "left"}, 1000, function () {
+                                    $('#take_snapshot_view').show("slide", {"direction": "left"}, 1000);
+                                });
+                            });
+                        };
+                        document.getElementById("datasets_selected").onclick = function () {
+                            var selected = $('select[name=datasets]').val() + '';
+                            if (selected.length > 0) {
+                                var selected_list = selected.split(',');
+                                var selected_list_html = '';
+                                for (var i = 0; i < selected_list.length; i++) {
+                                    selected_list_html += '<li>' + selected_list[i] + '</li>';
+                                }
+                                $("#dialog-confirm").html("<div class=\"alert alert-danger\">" +
+                                        "<strong>" + SNAPSHOT_TAKE_DIALOG_TITLE + "</strong></div>"
+                                        + "<ul>" + selected_list_html + "</ul>");
+                                // Define the Dialog and its properties.
+                                $("#dialog-confirm").dialog({
+                                    dialogClass: 'no-close',
+                                    resizable: true,
+                                    modal: true,
+                                    title: "Are you sure?!",
+                                    height: 600,
+                                    width: 800,
+                                    hide: {effect: "fade", duration: 500},
+                                    buttons: {
+                                        "Yes, take the snapshots!": function () {
+                                            $(this).dialog('close');
+                                            snapshot_dialog_callback(true, selected_list);
+                                        },
+                                        "No, I do not want to take those snapshots after all": function () {
+                                            $(this).dialog('close');
+                                            snapshot_dialog_callback(false);
+                                        }
+                                    }
+                                });
+                            }
+                        };
+                        /* change file system properties */
+                        document.getElementById("change_filesystems").onclick = function () {
+                            $('#take_snapshot_view').hide("slide", {"direction": "left"}, 1000, function () {
+                                $('#snapshot_table').hide("slide", {"direction": "left"}, 1000, function () {
+                                    $('#filesystem_management').show("slide", {"direction": "left"}, 1000);
+                                });
+                            });
+                        };
+                        /* delete snapshots */
+                        document.getElementById("delete_selected").onclick = function () {
+                            var toDelete = [];
+                            var delete_list_html = '';
+                            $('.action_checkbox:checked').each(function () {
+                                toDelete.push(this.value);
+                                delete_list_html += "<li>" + this.value + "</li>";
+                            });
+                            if (toDelete.length > 0) {
+                                $("#dialog-confirm").html("<div class=\"alert alert-danger\">" +
+                                        "<strong>" + SNAPSHOT_DELETION_DIALOG_TITLE + "</strong></div>"
+                                        + "<ul>" + delete_list_html + "</ul>");
+                                // Define the Dialog and its properties.
+                                $("#dialog-confirm").dialog({
+                                    dialogClass: 'no-close',
+                                    resizable: true,
+                                    modal: true,
+                                    title: "Are you really sure?!",
+                                    height: 600,
+                                    width: 800,
+                                    hide: {effect: "fade", duration: 500},
+                                    buttons: {
+                                        "Yes, they'll be gone forever, I understand!": function () {
+                                            $(this).dialog('close');
+                                            delete_dialog_callback(true, toDelete);
+                                        },
+                                        "No, I'm making a terrible mistake, do not delete!": function () {
+                                            $(this).dialog('close');
+                                            delete_dialog_callback(false);
+                                        }
+                                    }
+                                });
+                            }
+                        };
+                        /* clone snapshots */
+                        document.getElementById("clone_selected").onclick = function () {
+                            var toClone = [];
+                            var clone_list_html = '';
+                            $('.action_checkbox:checked').each(function () {
+                                toClone.push(this.value);
+                                clone_list_html += "<li>" + this.value + "</li>";
+                            });
+                            if (toClone.length > 0) {
+                                $("#dialog-confirm").html("<div class=\"alert alert-danger\">" +
+                                        "<strong>" + SNAPSHOT_CLONE_DIALOG_TITLE + "</strong></div>"
+                                        + "<ul>" + clone_list_html + "</ul>");
+                                // Define the Dialog and its properties.
+                                $("#dialog-confirm").dialog({
+                                    dialogClass: 'no-close',
+                                    resizable: true,
+                                    modal: true,
+                                    title: "Confirm clone",
+                                    height: 600,
+                                    width: 800,
+                                    hide: {effect: "fade", duration: 500},
+                                    buttons: {
+                                        "Yes, go ahead and clone": function () {
+                                            $(this).dialog('close');
+                                            clone_dialog_callback(true, toClone);
+                                        },
+                                        "No, do not clone": function () {
+                                            $(this).dialog('close');
+                                            clone_dialog_callback(false);
+                                        }
+                                    }
+                                });
+                            }
+                        };
+                        /* manage file systems buttons */
+                        document.getElementById("delete").onclick = function () {
+                            var selected = $('div#delete_filesystem_form select[name=datasets]').val() + '';
+                            /* call the dialog */
+                            if (selected && selected.length > 0) {
+                                /* note: set this up for multi-select, even though only allowing single at present */
+                                var selected_list = selected.split(',');
+                                var selected_list_html = '';
+                                for (var i = 0; i < selected_list.length; i++) {
+                                    selected_list_html += '<li>' + selected_list[i] + '</li>';
+                                }
+                                $("#dialog-confirm").html("<div class=\"alert alert-danger\"><strong>"
+                                        + FILESYSTEM_DELETION_DIALOG_TITLE + "</strong></div>"
+                                        + "<ul>" + selected_list_html + "</ul>");
+                                // Define the Dialog and its properties.
+                                $("#dialog-confirm").dialog({
+                                    dialogClass: 'no-close',
+                                    resizable: true,
+                                    modal: true,
+                                    title: "Are you really sure?!",
+                                    height: 600,
+                                    width: 800,
+                                    hide: {effect: "fade", duration: 500},
+                                    buttons: {
+                                        "Yes, they'll be gone forever, I understand!": function () {
+                                            $(this).dialog('close');
+                                            filesystem_delete_dialog_callback(true);
+                                        },
+                                        "No, I'm making a terrible mistake, do not delete!": function () {
+                                            $(this).dialog('close');
+                                            filesystem_delete_dialog_callback(false);
+                                        }
+                                    }
+                                });
+                            }
+                        };
+                        document.getElementById("create_filesystems_button").onclick = function () {
+                            var form_count = parseInt('{{ formset_forms }}');
+                            var selected_dataset = [];
+                            var new_filesystem = [];
+                            var selected_dataset_list_html = '';
+                            var new_filesystem_list = '';
+                            for (var c = 0; c < form_count; c++) {
+                                selected_dataset.push($('form#create_filesystems_form select[name=form-' + c + '-datasets]').val());
+                                new_filesystem.push($('form#create_filesystems_form input[name=form-' + c + '-filesystem]').val());
+                            }
+                            /* call the dialog */
+                            if (selected_dataset.length > 0 && new_filesystem.length > 0) {
+                                /* note: set this up for multi-select, even though only allowing single at present */
+                                $.each(selected_dataset, function (index, value) {
+                                    if (new_filesystem[index]) {
+                                        selected_dataset_list_html += '<li>' + value + '/' + new_filesystem[index] + '</li>';
+                                    }
+                                });
+                                $("#dialog-confirm").html("<div class=\"alert alert-success\"><strong>"
+                                        + FILESYSTEM_CREATION_DIALOG_TITLE + "</strong></div>"
+                                        + "<ul>" + selected_dataset_list_html + "</ul>");
+                                // Define the Dialog and its properties.
+                                $("#dialog-confirm").dialog({
+                                    dialogClass: 'no-close',
+                                    resizable: true,
+                                    modal: true,
+                                    title: "Are you really sure?!",
+                                    height: 600,
+                                    width: 800,
+                                    hide: {effect: "fade", duration: 500},
+                                    buttons: {
+                                        "Yes, create!": function () {
+                                            $(this).dialog('close');
+                                            filesystem_create_dialog_callback(true);
+                                        },
+                                        "No, do not proceed": function () {
+                                            $(this).dialog('close');
+                                            filesystem_create_dialog_callback(false);
+                                        }
+                                    }
+                                });
+                            }
+                        };
+                        document.getElementById("create_filesystems").onclick = function () {
+                            $('#delete_filesystem_form').hide("slide", {"direction": "right"}, 1000, function () {
+                                $('#show_filesystem_props').hide("slide", {"direction": "left"}, 1000, function () {
+                                    $('#create_filesystem_form').show("slide", {"direction": "left"}, 1000);
+                                });
+                            });
+                        };
+                        document.getElementById("delete_filesystems").onclick = function () {
+                            $('#create_filesystem_form').hide("slide", {"direction": "left"}, 1000, function () {
+                                $('#show_filesystem_props').hide("slide", {"direction": "left"}, 1000, function () {
+                                    $('#delete_filesystem_form').show("slide", {"direction": "right"}, 1000);
+                                });
+                            });
+                        }
+                        document.getElementById("filesystem_props").onclick = function () {
+                            $('#create_filesystem_form').hide("slide", {"direction": "left"}, 1000, function () {
+                                $('#delete_filesystem_form').hide("slide", {"direction": "right"}, 1000, function () {
+                                    $('#show_filesystem_props').show("slide", {"direction": "left"}, 1000);
+                                });
+                            });
+                        }
+                    }
+
+                    /* dialogs */
+
+                    function filesystem_delete_dialog_callback(value) {
+                        if (value) {
+                            $('#messages').html(INITIATE_DELETE_MESSAGE);
+                            var postData = $('#filesystem_deletion_form').serializeArray();
+                            $.ajax(
+                                    {
+                                        url: "{% url 'ZFSAdmin:delete_filesystem' %}",
+                                        headers: {"X-CSRFToken": '{{ csrf_token }}'},
+                                        type: "POST",
+                                        data: postData,
+                                        success: function (data, textStatus, jqXHR) {
+                                            if (textStatus == 'success') {
+                                                $('#messages').html(FILESYSTEM_DELETION_SUCCESS_MESSAGE);
+                                                TaskUpdateStatusChecker(0, 'filesystem_management', data, true);
+                                            } else {
+                                                $('#messages').html(ERROR_MESSAGE + ' : Delete file system task failed to initiate!');
+                                                setTimeout(function () {
+                                                    window.location.replace("{% url 'ZFSAdmin:index' %}");
+                                                }, 5000);
+                                            }
+                                        },
+                                        error: function (jqXHR, textStatus, errorThrown) {
+                                            $('#messages').html(ERROR_MESSAGE);
+                                            setTimeout(function () {
+                                                window.location.replace("{% url 'ZFSAdmin:index' %}");
+                                            }, 5000);
+                                        }
+                                    });
+                        }
+                        else {
+                            /* nothing */
+                        }
+                    }
+
+                    function filesystem_create_dialog_callback(value) {
+                        if (value) {
+                            $('#messages').html(INITIATE_FILESYSTEMS_CREATE_MESSAGE);
+                            var postData = $('form#create_filesystems_form').serializeArray();
+                            $.ajax(
+                                    {
+                                        url: "{% url 'ZFSAdmin:create_filesystem' %}",
+                                        headers: {"X-CSRFToken": '{{ csrf_token }}'},
+                                        type: "POST",
+                                        data: postData,
+                                        success: function (data, textStatus, jqXHR) {
+                                            if (textStatus == 'success') {
+                                                $('#messages').html(FILESYSTEM_CREATE_SUCCESS_MESSAGE);
+                                                TaskUpdateStatusChecker(0, 'filesystem_management', data, true);
+                                            } else {
+                                                $('#messages').html(ERROR_MESSAGE + ' : Create file system task failed to initiate!');
+                                                setTimeout(function () {
+                                                    window.location.replace("{% url 'ZFSAdmin:index' %}");
+                                                }, 5000);
+                                            }
+                                        },
+                                        error: function (jqXHR, textStatus, errorThrown) {
+                                            $('#messages').html(ERROR_MESSAGE);
+                                            setTimeout(function () {
+                                                window.location.replace("{% url 'ZFSAdmin:index' %}");
+                                            }, 5000);
+                                        }
+                                    });
+                        }
+                        else {
+                            /* nothing */
+                        }
+                    }
+
+                    function delete_dialog_callback(value, toDelete) {
+                        if (value && toDelete) {
+                            $('#messages').html(INITIATE_DELETE_MESSAGE);
+                            $.ajax({
+                                type: "POST",
+                                url: "{% url 'ZFSAdmin:delete_snapshots' %}",
+                                headers: {"X-CSRFToken": '{{ csrf_token }}'},
+                                data: JSON.stringify($({sendData: toDelete})),
+                                contentType: "application/json; charset=utf-8",
+                                dataType: "json",
+                                success: function (result) {
+                                    if (result.success == 'true') {
+                                        $('#messages').html(SNAPSHOT_DELETION_SUCCESS_MESSAGE);
+                                        TaskUpdateStatusChecker(0, 'snapshot_delete', result.task_id, true);
                                     } else {
-                                        $('#messages').html(ERROR_MESSAGE + '<div class="alert alert-info">Error detail: ' + data.error_detail + '</div>');
+                                        $('#messages').html(ERROR_MESSAGE + '<div>Error Details: ' + result.error + '</div>');
                                         setTimeout(function () {
                                             window.location.replace("{% url 'ZFSAdmin:index' %}");
-                                        }, 7000);
+                                        }, 1000)
                                     }
-                                }
-                                /* IF UPDATE TASK RUNNING */
-                                else if (data.updating == 'true') {
-                                    $('#updating').html('<div class="progress-bar progress-bar-striped ' +
-                                            'progress-bar-warning active" ' +
-                                            'role="progressbar" aria-valuenow="100" ' +
-                                            'aria-valuemin="0" aria-valuemax="100" ' +
-                                            'style="width:100%;font-size:1.3em;">' +
-                                            '<span>' + STATUS_BAR_MESSAGE + '</span>' +
-                                            '</div>');
-                                    $('.panel-footer').html("Updating in progress ...");
-                                    $('#updating').show("slide", 1000);
+                                },
+                                error: function (result) {
+                                    $('#messages').html(ERROR_MESSAGE + '<div>Error Details: ' + result.error + '</div>');
                                     setTimeout(function () {
-                                        /* loop the loop every 7 seconds (max 10 times - loopcount) */
-                                        TaskUpdateStatusChecker(++loop_count);
-                                    }, 7000);
-                                }
-                            },
-                            error: function (xhr, status) {
-                                $('#messages').html(ERROR_MESSAGE);
-                            },
-                            complete: function (xhr, status) {
-                            }
-                        });
-                    } else {
-                        $('#messages').html(ERROR_MESSAGE);
-                        $('#updating').hide("slide", 1000);
-                    }
-                }
-            }
-
-            function ButtonListener() {
-                /* button listener */
-                document.getElementById("update_list").onclick = function () {
-                    window.location.replace("{% url 'ZFSAdmin:index' %}");
-                };
-                document.getElementById("take_snapshot").onclick = function () {
-                    window.location.replace("{% url 'ZFSAdmin:take_snapshot' %}");
-                };
-                document.getElementById("change_filesystems").onclick = function () {
-                    window.location.replace("{% url 'ZFSAdmin:change_filesystems' %}");
-                };
-                document.getElementById("delete_selected").onclick = function () {
-                    var toDelete = [];
-                    var delete_list_html = '';
-                    $('.action_checkbox:checked').each(function () {
-                        toDelete.push(this.value);
-                        delete_list_html += "<li>" + this.value + "</li>";
-                    });
-                    if (toDelete.length > 0) {
-                        $("#dialog-confirm").html("<div class=\"alert alert-danger\">" +
-                                "<strong>" + SNAPSHOT_DELETION_DIALOG_TITLE + "</strong></div>"
-                                + "<ul>" + delete_list_html + "</ul>");
-                        // Define the Dialog and its properties.
-                        $("#dialog-confirm").dialog({
-                            dialogClass: 'no-close',
-                            resizable: true,
-                            modal: true,
-                            title: "Are you really sure?!",
-                            height: 600,
-                            width: 800,
-                            hide: {effect: "fade", duration: 500},
-                            buttons: {
-                                "Yes, they'll be gone forever, I understand!": function () {
-                                    $(this).dialog('close');
-                                    delete_dialog_callback(true, toDelete);
+                                        window.location.replace("{% url 'ZFSAdmin:index' %}");
+                                    }, 1000);
                                 },
-                                "No, I'm making a terrible mistake, do not delete!": function () {
-                                    $(this).dialog('close');
-                                    delete_dialog_callback(false);
+                                complete: function (xhr, status) {
+                                    /* do nothing */
                                 }
-                            }
-                        });
+                            });
+                        } else {
+                            /* nothing ... */
+                        }
                     }
-                }
-                document.getElementById("clone_selected").onclick = function () {
-                    var toClone = [];
-                    var clone_list_html = '';
-                    $('.action_checkbox:checked').each(function () {
-                        toClone.push(this.value);
-                        clone_list_html += "<li>" + this.value + "</li>";
-                    });
-                    if (toClone.length > 0) {
-                        $("#dialog-confirm").html("<div class=\"alert alert-danger\">" +
-                                "<strong>" + SNAPSHOT_CLONE_DIALOG_TITLE + "</strong></div>"
-                                + "<ul>" + clone_list_html + "</ul>");
-                        // Define the Dialog and its properties.
-                        $("#dialog-confirm").dialog({
-                            dialogClass: 'no-close',
-                            resizable: true,
-                            modal: true,
-                            title: "Confirm clone",
-                            height: 600,
-                            width: 800,
-                            hide: {effect: "fade", duration: 500},
-                            buttons: {
-                                "Yes, go ahead and clone": function () {
-                                    $(this).dialog('close');
-                                    clone_dialog_callback(true, toClone);
+
+
+                    function clone_dialog_callback(value, toClone) {
+                        if (value && toClone) {
+                            $('#messages').html(INITIATE_CLONE_MESSAGE);
+                            $.ajax({
+                                type: "POST",
+                                url: "{% url 'ZFSAdmin:clone_snapshots' %}",
+                                headers: {"X-CSRFToken": '{{ csrf_token }}'},
+                                data: JSON.stringify($({sendData: toClone})),
+                                contentType: "application/json; charset=utf-8",
+                                dataType: "json",
+                                success: function (result) {
+                                    if (result.success == 'true') {
+                                        $('#messages').html(SNAPSHOT_CLONE_SUCCESS_MESSAGE);
+                                        TaskUpdateStatusChecker(0, 'snapshot_clone', result.task_id, true);
+                                    } else {
+                                        $('#messages').html(ERROR_MESSAGE + '<div>Error Details: ' + result.error + '</div>')
+                                        setTimeout(function () {
+                                            window.location.replace("{% url 'ZFSAdmin:index' %}");
+                                        }, 1000)
+                                    }
                                 },
-                                "No, do not clone": function () {
-                                    $(this).dialog('close');
-                                    clone_dialog_callback(false);
+                                error: function (result) {
+                                    $('#messages').html(ERROR_MESSAGE + '<div>Error Details: ' + result.error + '</div>');
+                                    setTimeout(function () {
+                                        window.location.replace("{% url 'ZFSAdmin:index' %}");
+                                    }, 1000);
                                 }
-                            }
-                        });
+                            });
+                        } else {
+                            /* nothing ... */
+                        }
                     }
-                }
-            }
 
-            function delete_dialog_callback(value, toDelete) {
-                if (value && toDelete) {
-                    $('#messages').html(INITIATE_DELETE_MESSAGE);
-                    $.ajax({
-                        type: "POST",
-                        url: "{% url 'ZFSAdmin:delete_snapshots' %}",
-                        headers: {"X-CSRFToken": '{{ csrf_token }}'},
-                        data: JSON.stringify($({sendData: toDelete})),
-                        contentType: "application/json; charset=utf-8",
-                        dataType: "json",
-                        success: function (result) {
-                            if (result.success == 'true') {
-                                setTimeout(function () {
-                                    window.location.replace("{% url 'ZFSAdmin:index' %}");
-                                }, 1000);
-                            } else {
-                                setTimeout(function () {
-                                    $('#messages').html(ERROR_MESSAGE + '<div>Error Details: ' + result.error + '</div>')
-                                }, 1000)
-                            }
-                        },
-                        error: function (result) {
-                            $('#messages').html(ERROR_MESSAGE);
-                            setTimeout(function () {
-                                window.location.replace("{% url 'ZFSAdmin:index' %}");
-                            }, 1000);
+                    function snapshot_dialog_callback(value, toSnapshot) {
+                        if (value && toSnapshot) {
+                            $('#messages').html(INITIATE_SNAPSHSOT_MESSAGE);
+                            $.ajax({
+                                type: "POST",
+                                url: "{% url 'ZFSAdmin:take_snapshots' %}",
+                                headers: {"X-CSRFToken": '{{ csrf_token }}'},
+                                data: JSON.stringify($({sendData: toSnapshot})),
+                                contentType: "application/json; charset=utf-8",
+                                dataType: "json",
+                                success: function (result) {
+                                    if (result.success == 'true') {
+                                        $('#messages').html(SNAPSHOT_TAKE_SUCCESS_MESSAGE);
+                                        TaskUpdateStatusChecker(0, 'snapshot_take', result.task_id, true);
+                                    } else {
+                                        $('#messages').html(ERROR_MESSAGE + '<div>Error Details: ' + result.error + '</div>')
+                                        setTimeout(function () {
+                                            window.location.replace("{% url 'ZFSAdmin:index' %}");
+                                        }, 1000)
+                                    }
+                                },
+                                error: function (result) {
+                                    $('#messages').html(ERROR_MESSAGE + '<div>Error Details: ' + result.error + '</div>');
+                                    setTimeout(function () {
+                                        window.location.replace("{% url 'ZFSAdmin:index' %}");
+                                    }, 1000);
+                                }
+                            });
+                        } else {
+                            /* nothing ... */
                         }
-                    });
-                } else {
-                    /* nothing ... */
-                }
-            }
+                    }
 
-
-            function clone_dialog_callback(value, toClone) {
-                if (value && toClone) {
-                    $('#messages').html(INITIATE_CLONE_MESSAGE);
-                    $.ajax({
-                        type: "POST",
-                        url: "{% url 'ZFSAdmin:clone_snapshots' %}",
-                        headers: {"X-CSRFToken": '{{ csrf_token }}'},
-                        data: JSON.stringify($({sendData: toClone})),
-                        contentType: "application/json; charset=utf-8",
-                        dataType: "json",
-                        success: function (result) {
-                            if (result.success == 'true') {
-                                setTimeout(function () {
-                                    window.location.replace("{% url 'ZFSAdmin:index' %}");
-                                }, 1000);
-                            } else {
-                                setTimeout(function () {
-                                    $('#messages').html(ERROR_MESSAGE + '<div>Error Details: ' + result.error + '</div>')
-                                }, 1000)
-                            }
-                        },
-                        error: function (result) {
-                            $('#messages').html(ERROR_MESSAGE);
-                            setTimeout(function () {
-                                window.location.replace("{% url 'ZFSAdmin:index' %}");
-                            }, 1000);
-                        }
-                    });
-                } else {
-                    /* nothing ... */
+                    /* RUN THE SCRIPTS */
+                    init();
                 }
-            }
-            /* RUN THE SCRIPTS */
-            init();
-        });
+        );
     </script>
 {% endblock %}

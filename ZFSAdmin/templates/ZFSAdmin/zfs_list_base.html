@@ -272,8 +272,9 @@
                                                         window.location.replace("{% url 'ZFSAdmin:index' %}?task_id=" + task_id + "&process=" + process);
                                                     }, 3000);
                                                 }
-                                                else {
-                                                    window.location.replace("{% url 'ZFSAdmin:index' %}?task_id=" + task_id + "&process=" + process);
+                                                else {setTimeout(function () {
+                                                        window.location.replace("{% url 'ZFSAdmin:index' %}?task_id=" + task_id + "&process=" + process);
+                                                    }, 1000);
                                                 }
                                             } else {
                                                 $('#button_div').hide("slide", {"direction": "right"}, 1000);

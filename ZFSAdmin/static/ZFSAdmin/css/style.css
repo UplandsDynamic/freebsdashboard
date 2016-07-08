@@ -87,7 +87,7 @@ div#existing_filesystems, div#create_filesystem_form_1 {
 }
 
 table.snapshot-table {
-    text-transform: capitalize;
+    /*text-transform: capitalize;*/
 }
 
 ul {

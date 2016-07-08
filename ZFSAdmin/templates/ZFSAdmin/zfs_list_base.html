@@ -114,21 +114,25 @@
                 </div>
             </div>
             <hr>
-            <form role="form" id="create_filesystems_form" action="" method="post" onsubmit="event.preventDefault();">
-                <div class="form-group create_filesystem_form">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div id="create_filesystem_form" class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
-                                <h2><span class="glyphicon glyphicon-plus-sign"></span> Create File System(s)</h2>
+            <div class="container-fluid">
+                <div class="row" id="create_filesystems_form_row">
+                    <div id="create_filesystem_form" class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
+                        <form role="form" id="create_filesystems_form" action="" method="post"
+                              onsubmit="event.preventDefault();">
+                            <div class="form-group create_filesystem_form">
+                                <h2><span class="glyphicon glyphicon-plus-sign"></span> Create File System(s)
+                                </h2>
                                 {% for form in formset %}
                                     {{ form.non_form_errors }}
                                 {% endfor %}
                                 {{ formset.non_form_errors }}
                                 {% csrf_token %}
                                 <div class="form_info alert alert-info">
-                                    <p>Enter the new filesystem details here, selecting the desired zpool/dataset
+                                    <p>Enter the new filesystem details here, selecting the desired
+                                        zpool/dataset
                                         first.</p>
-                                    <p>For example, enter MyNewFileSystem, or MyNewFileSystem/MyNewFileSystemTwo.</p>
+                                    <p>For example, enter MyNewFileSystem, or
+                                        MyNewFileSystem/MyNewFileSystemTwo.</p>
                                 </div>
                                 {% for form in formset %}
                                     <div class="form_filesystems">
@@ -147,18 +151,17 @@
                                     </div>
                                 {% endfor %}
                                 {{ formset.management_form }}
-                                <button class="btn btn-success" id="create_filesystems_button">Create File System(s)
+                                <button class="btn btn-success" id="create_filesystems_button">Create File
+                                    System(s)
                                 </button>
-                            </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
-        </div>
-        </form>
-        <form action="" method="post" id="filesystem_deletion_form" role="form" onsubmit="event.preventDefault();">
-            <div class="container-fluid">
-                <div class="row">
-                    <div id="delete_filesystem_form" class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
+            </div>
+            <div class="row" id="filesystem_deletion_form_row">
+                <div id="delete_filesystem_form" class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
+                    <form action="" method="post" id="filesystem_deletion_form" role="form"
+                          onsubmit="event.preventDefault();">
                         <h2><span class="glyphicon glyphicon-minus-sign"></span> Delete Dataset</h2>
                         {{ dataset_deletion_form.non_form_errors }}
                         {% csrf_token %}
@@ -167,12 +170,10 @@
                         </div>
                         {{ dataset_deletion_form.datasets }} {{ dataset_deletion_form.errors }}
                         <button class="btn btn-danger" id="delete">Delete Selected Dataset</button>
-                    </div>
+                    </form>
                 </div>
             </div>
-        </form>
-        <div class="container-fluid">
-            <div class="row">
+            <div class="row" id="show_props_form_row">
                 <div id="show_filesystem_props" class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
                     <h2><span class="glyphicon glyphicon-cog"></span> Show File System Properties</h2>
                     <p>Coming soon to a view near you ...</p>
@@ -219,10 +220,13 @@
                         $('#take_snapshot_view').hide();
                         $('#button_div').hide();
                         $('#main_buttons').hide();
+                        $('#filesystem_management').hide("slide", {"direction": "left"}, 1000);
+                        $('#create_filesystems_form_row').hide("slide", {"direction": "left"}, 1000);
+                        $('#filesystem_deletion_form_row').hide("slide", {"direction": "left"}, 1000);
+                        $('#show_props_form_row').hide("slide", {"direction": "left"}, 1000);
                         /* if not updating, show the table etc */
                         if (updating != 'true') {
                             $('#updating').hide();
-                            $('#filesystem_management').hide();
                             $('.panel-footer').html("No running tasks.");
                             $('#button_div').show("slide", {"direction": "right"}, 1000);
                             $('#main_buttons').show("slide", {"direction": "left"}, 1000);
@@ -230,9 +234,6 @@
                             $('#button_div').show("slide", {"direction": "right"}, 1000);
                             $('#manage_filesystem_button_div').hide();
                             $('#manage_filesystem_button_div').show("slide", {"direction": "left"}, 1000);
-                            $('#create_filesystem_form').hide();
-                            $('#delete_filesystem_form').hide();
-                            $('#show_filesystem_props').hide();
                         }
                         /* start the listeners */
                         ButtonListener();
@@ -522,23 +523,23 @@
                             }
                         };
                         document.getElementById("create_filesystems").onclick = function () {
-                            $('#delete_filesystem_form').hide("slide", {"direction": "right"}, 1000, function () {
-                                $('#show_filesystem_props').hide("slide", {"direction": "left"}, 1000, function () {
-                                    $('#create_filesystem_form').show("slide", {"direction": "left"}, 1000);
+                            $('#filesystem_deletion_form_row').hide("slide", {"direction": "right"}, 1000, function () {
+                                $('#show_props_form_row').hide("slide", {"direction": "left"}, 1000, function () {
+                                    $('#create_filesystems_form_row').show("slide", {"direction": "left"}, 1000);
                                 });
                             });
                         };
                         document.getElementById("delete_filesystems").onclick = function () {
-                            $('#create_filesystem_form').hide("slide", {"direction": "left"}, 1000, function () {
-                                $('#show_filesystem_props').hide("slide", {"direction": "left"}, 1000, function () {
-                                    $('#delete_filesystem_form').show("slide", {"direction": "right"}, 1000);
+                            $('#show_props_form_row').hide("slide", {"direction": "left"}, 1000, function () {
+                                $('#create_filesystems_form_row').hide("slide", {"direction": "left"}, 1000, function () {
+                                    $('#filesystem_deletion_form_row').show("slide", {"direction": "right"}, 1000);
                                 });
                             });
                         }
                         document.getElementById("filesystem_props").onclick = function () {
-                            $('#create_filesystem_form').hide("slide", {"direction": "left"}, 1000, function () {
-                                $('#delete_filesystem_form').hide("slide", {"direction": "right"}, 1000, function () {
-                                    $('#show_filesystem_props').show("slide", {"direction": "left"}, 1000);
+                            $('#create_filesystems_form_row').hide("slide", {"direction": "left"}, 1000, function () {
+                                $('#filesystem_deletion_form_row').hide("slide", {"direction": "right"}, 1000, function () {
+                                    $('#show_props_form_row').show("slide", {"direction": "left"}, 1000);
                                 });
                             });
                         }

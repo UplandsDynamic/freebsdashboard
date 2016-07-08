@@ -83,7 +83,7 @@ class IndexView(LoginRequiredMixin, generic.View):
 
     def update(self, request):
         # start task to grab snapshots and datasets & send task_ids to AJAX in template via context
-        context = {'task_id': async(engineering.update_zfs_data)}
+        context = {'task_id': async(engineering.update_zfs_data), 'updating': 'true'}
         return render(request, self.TEMPLATE_NAME, context)
 
 

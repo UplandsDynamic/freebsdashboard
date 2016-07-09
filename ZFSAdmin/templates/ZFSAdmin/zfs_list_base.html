@@ -128,11 +128,15 @@
                                 {{ formset.non_form_errors }}
                                 {% csrf_token %}
                                 <div class="form_info alert alert-info">
-                                    <p>Enter the new filesystem details here, selecting the desired
-                                        zpool/dataset
+                                    <p>Enter the new filesystem details here (you have the option of creating 5 at a
+                                        time).</p>
+                                    <p>Select the desired
+                                        parent zpool/dataset from the dropdown menu
                                         first.</p>
-                                    <p>For example, enter MyNewFileSystem, or
+                                    <p>For example, select "zpool", then enter MyNewFileSystem, or
                                         MyNewFileSystem/MyNewFileSystemTwo.</p>
+                                    <p>Once you've defined your new filesystem(s), tap the "Create File System(s)"
+                                        button at bottom of the form.</p>
                                 </div>
                                 {% for form in formset %}
                                     <div class="form_filesystems">
@@ -149,6 +153,7 @@
                                     <div class="form_sharenfs" style="margin-bottom:1em;"><span
                                             class="label label-primary">{{ form.sharenfs.label }}</span> {{ form.sharenfs }} {{ form.sharenfs.errors }}
                                     </div>
+                                    <hr>
                                 {% endfor %}
                                 {{ formset.management_form }}
                                 <button class="btn btn-success" id="create_filesystems_button">Create File

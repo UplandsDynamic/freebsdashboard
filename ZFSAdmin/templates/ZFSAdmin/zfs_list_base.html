@@ -2,6 +2,18 @@
 {% load static %}
 {% block title %}FreeBSDashboard ZFSAdmin{% endblock %}
 {% block the_body %}
+    <span id="glyphicon_preload" style="position:relative;float:right;visibility:hidden">
+        <span class="glyphicon glyphicon-briefcase"></span>
+        <span class="glyphicon glyphicon-list"></span>
+        <span class="glyphicon glyphicon-filter"></span>
+        <span class="glyphicon glyphicon-refresh"></span>
+        <span class="glyphicon glyphicon-check"></span>
+        <span class="glyphicon glyphicon-duplicate"></span>
+        <span class="glyphicon glyphicon-remove-circle"></span>
+        <span class="glyphicon glyphicon-plus-sign"></span>
+        <span class="glyphicon glyphicon-minus-sign"></span>
+        <span class="glyphicon glyphicon-cog"></span>
+    </span>
     <div id="main_buttons_container">
         <div id="main_buttons">
             <button type="button" class="btn btn-lg btn-primary" id="display_snapshots_button"><span
@@ -274,7 +286,7 @@
                                                 $('#messages').html(SUCCESS_MESSAGE);
                                                 setTimeout(function () {
                                                     window.location.replace("{% url 'ZFSAdmin:index' %}?task_id=" + task_id + "&process=" + process);
-                                                }, 700);
+                                                }, 950);
                                             } else {
                                                 $('#button_div').hide("slide", {"direction": "right"}, 1000);
                                                 $('#main_buttons').hide("slide", {"direction": "left"}, 1000);

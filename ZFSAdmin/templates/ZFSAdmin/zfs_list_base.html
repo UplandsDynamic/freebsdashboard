@@ -220,10 +220,10 @@
                         $('#take_snapshot_view').hide();
                         $('#button_div').hide();
                         $('#main_buttons').hide();
-                        $('#filesystem_management').hide("slide", {"direction": "left"}, 1000);
-                        $('#create_filesystems_form_row').hide("slide", {"direction": "left"}, 1000);
-                        $('#filesystem_deletion_form_row').hide("slide", {"direction": "left"}, 1000);
-                        $('#show_props_form_row').hide("slide", {"direction": "left"}, 1000);
+                        $('#filesystem_management').hide();
+                        $('#create_filesystems_form_row').hide();
+                        $('#filesystem_deletion_form_row').hide();
+                        $('#show_props_form_row').hide();
                         /* if not updating, show the table etc */
                         if (updating != 'true') {
                             $('#updating').hide();
@@ -269,7 +269,7 @@
                                                 $('#messages').html(SUCCESS_MESSAGE);
                                                 setTimeout(function () {
                                                     window.location.replace("{% url 'ZFSAdmin:index' %}?task_id=" + task_id + "&process=" + process);
-                                                }, 3000);
+                                                }, 1000);
                                             } else {
                                                 $('#button_div').hide("slide", {"direction": "right"}, 1000);
                                                 $('#main_buttons').hide("slide", {"direction": "left"}, 1000);

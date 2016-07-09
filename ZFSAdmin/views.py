@@ -68,11 +68,17 @@ class IndexView(LoginRequiredMixin, generic.View):
                     context['datasets'] = sorted(set(filesystems))
                     # dataset management pane
                     context['formset_forms'] = 5
-                    choices = [(fs, fs) for fs in sorted(set(filesystems))]
+                    dataset_choices = [(fs, fs) for fs in sorted(set(filesystems))]
+                    compression = sorted([('on', 'on'), ('off', 'off'), ('lzjb', 'lzjb'),
+                                          ('gzip', 'gzip'), ('zle', 'zle'), ('lz4', 'lz4')])
                     new_filesystem_formset = formset_factory(ManageFileSystems, extra=context.get('formset_forms'))
                     context['formset'] = new_filesystem_formset(
-                        form_kwargs={'choices': choices, 'initial': choices[0][1]})
-                    context['dataset_deletion_form'] = DatasetDeletion(choices=choices, initial=choices[0][1])
+                        form_kwargs={'dataset_choices': dataset_choices,
+                                     'compression_choice': compression,
+                                     'initial_compression': 'on',
+                                     'initial_dataset': dataset_choices[0][1]})
+                    context['dataset_deletion_form'] = DatasetDeletion(choices=dataset_choices,
+                                                                       initial=dataset_choices[0][1])
                     # render the template
                     return render(request, self.TEMPLATE_NAME, context)
                 else:
@@ -202,13 +208,17 @@ def create_filesystem(request):
     user = request.user  # necessary for the @user_passes_test decorator
     if request.is_ajax():
         if request.method == 'POST':
-            chosen = []
+            datasets_chosen = []
+            compression_chosen = []
             logger.error(str(request.POST))
             new_filesystem_formset = formset_factory(ManageFileSystems, extra=5)
             for form_num, data in enumerate(request.POST):
-                chosen.append([request.POST.get('form-{}-datasets'.format(form_num)),
-                               request.POST.get('form-{}-datasets'.format(form_num))])
-            formset = new_filesystem_formset(request.POST, form_kwargs={'choices': chosen})
+                datasets_chosen.append([request.POST.get('form-{}-datasets'.format(form_num)),
+                                        request.POST.get('form-{}-datasets'.format(form_num))])
+                compression_chosen.append([request.POST.get('form-{}-compression'.format(form_num)),
+                                           ('form-{}-compression'.format(form_num))])
+            formset = new_filesystem_formset(request.POST, form_kwargs={'dataset_choices': datasets_chosen,
+                                                                        'compression_choice': compression_chosen})
             if formset.is_valid():
                 create_task = async(engineering.create_filesystems, data=formset.cleaned_data)
                 if create_task:
@@ -216,4 +226,3 @@ def create_filesystem(request):
                 else:
                     return HttpResponseServerError
     return HttpResponseServerError
-

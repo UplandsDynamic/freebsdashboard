@@ -217,7 +217,7 @@ def process_data(stdout_str=None, submitted_data=None, data_type=None):
                                            # filesystem filtered to remove leading & trailing slashes, & anything not: A-Za-z0-9-_/
                                            re.sub(r'[^A-Za-z0-9-_/]', '',
                                                   submitted_data.get('filesystem')).strip('/')),
-                    'compression': 'on' if submitted_data.get('compression') else 'off',
+                    'compression': submitted_data.get('compression') if submitted_data.get('compression') else 'off',
                     'sharenfs': 'on' if submitted_data.get('sharenfs') else 'off',
                     'quota': '{}G'.format(submitted_data.get('quota')) if submitted_data.get('quota') else 'none'}
     return return_data if return_data else None

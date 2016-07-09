@@ -69,7 +69,7 @@ class IndexView(LoginRequiredMixin, generic.View):
                     # dataset management pane
                     context['formset_forms'] = 5
                     dataset_choices = [(fs, fs) for fs in sorted(set(filesystems))]
-                    compression = sorted([('on', 'on'), ('off', 'off'), ('lzjb', 'lzjb'),
+                    compression = sorted([('on', 'On (default type)'), ('off', 'Off'), ('lzjb', 'lzjb'),
                                           ('gzip', 'gzip'), ('zle', 'zle'), ('lz4', 'lz4')])
                     new_filesystem_formset = formset_factory(ManageFileSystems, extra=context.get('formset_forms'))
                     context['formset'] = new_filesystem_formset(

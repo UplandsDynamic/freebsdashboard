@@ -269,7 +269,7 @@
                                                 $('#messages').html(SUCCESS_MESSAGE);
                                                 setTimeout(function () {
                                                     window.location.replace("{% url 'ZFSAdmin:index' %}?task_id=" + task_id + "&process=" + process);
-                                                }, 1000);
+                                                }, 700);
                                             } else {
                                                 $('#button_div').hide("slide", {"direction": "right"}, 1000);
                                                 $('#main_buttons').hide("slide", {"direction": "left"}, 1000);
@@ -316,7 +316,9 @@
                         document.getElementById("display_snapshots_button").onclick = function () {
                             $('#filesystem_management').hide("slide", {"direction": "left"}, 1000, function () {
                                 $('#take_snapshot_view').hide("slide", {"direction": "left"}, 1000, function () {
-                                    $('#snapshot_table').show("slide", {"direction": "left"}, 1000);
+                                    $('#button_div').show("slide", {"direction": "right"}, 1000, function () {
+                                        $('#snapshot_table').show("slide", {"direction": "left"}, 1000);
+                                    });
                                 });
                             });
                         };
@@ -328,7 +330,9 @@
                         document.getElementById("take_snapshots_button").onclick = function () {
                             $('#filesystem_management').hide("slide", {"direction": "left"}, 1000, function () {
                                 $('#snapshot_table').hide("slide", {"direction": "left"}, 1000, function () {
-                                    $('#take_snapshot_view').show("slide", {"direction": "left"}, 1000);
+                                    $('#button_div').hide("slide", {"direction": "right"}, 1000, function () {
+                                        $('#take_snapshot_view').show("slide", {"direction": "left"}, 1000);
+                                    });
                                 });
                             });
                         };
@@ -369,7 +373,9 @@
                         document.getElementById("change_filesystems").onclick = function () {
                             $('#take_snapshot_view').hide("slide", {"direction": "left"}, 1000, function () {
                                 $('#snapshot_table').hide("slide", {"direction": "left"}, 1000, function () {
-                                    $('#filesystem_management').show("slide", {"direction": "left"}, 1000);
+                                    $('#button_div').hide("slide", {"direction": "right"}, 1000, function () {
+                                        $('#filesystem_management').show("slide", {"direction": "left"}, 1000);
+                                    });
                                 });
                             });
                         };

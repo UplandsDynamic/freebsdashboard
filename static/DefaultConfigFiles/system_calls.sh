@@ -17,10 +17,10 @@ then
     echo $FREEBSDASHBOARD_SYSTEM_PASSWORD | /usr/local/bin/sudo -S \
     /sbin/zfs list -H -t filesystem -o name;
     /usr/local/bin/sudo -K;
-elif  [ $1 == 'get_options' ]
+elif  [ $1 == 'get_filesystem_properties' ]
 then
     echo $FREEBSDASHBOARD_SYSTEM_PASSWORD | /usr/local/bin/sudo -S \
-    /sbin/zfs get all $2;
+    /sbin/zfs get -H -o value $3 $2;
     /usr/local/bin/sudo -K;
 elif [ $1 == 'delete_snapshot' ]
 then

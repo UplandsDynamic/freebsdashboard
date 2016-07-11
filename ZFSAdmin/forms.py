@@ -36,13 +36,13 @@ class ManageFileSystems(forms.Form):
         self.fields['sharenfs'].initial = sharenfs_choice
 
 
-class DatasetDeletion(forms.Form):
+class DatasetForm(forms.Form):
     datasets = forms.ChoiceField(widget=forms.Select())
 
     def __init__(self, *args, **kwargs):
         dataset_choices = kwargs.pop('choices', None)
         dataset_initial_value = kwargs.pop('initial', None)
-        super(DatasetDeletion, self).__init__(*args, **kwargs)
+        super(DatasetForm, self).__init__(*args, **kwargs)
         # labels
         self.fields['datasets'].label = "Select Dataset"
         # choice setup

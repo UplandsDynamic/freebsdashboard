@@ -180,20 +180,64 @@
                     <form action="" method="post" id="filesystem_deletion_form" role="form"
                           onsubmit="event.preventDefault();">
                         <h2><span class="glyphicon glyphicon-minus-sign"></span> Delete Dataset</h2>
-                        {{ dataset_deletion_form.non_form_errors }}
+                        {{ dataset_form.non_form_errors }}
                         {% csrf_token %}
                         <div class="form_info alert alert-info">
                             <p>Select the dataset you wish to delete from the list.</p>
                         </div>
-                        {{ dataset_deletion_form.datasets }} {{ dataset_deletion_form.errors }}
+                        {{ dataset_form.datasets }} {{ dataset_form.errors }}
                         <button class="btn btn-danger" id="delete">Delete Selected Dataset</button>
                     </form>
                 </div>
             </div>
             <div class="row" id="show_props_form_row">
                 <div id="show_filesystem_props" class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
-                    <h2><span class="glyphicon glyphicon-cog"></span> Show File System Properties</h2>
-                    <p>Coming soon to a view near you ...</p>
+                    <h2><span class="glyphicon glyphicon-question-sign"></span> Show File System Properties</h2>
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
+                                <form action="" method="post" id="dataset_query_form" role="form"
+                                      onsubmit="event.preventDefault();">
+                                    {{ dataset_form.non_form_errors }}
+                                    {% csrf_token %}
+                                    <div class="form_info alert alert-info">
+                                        <p>Select the dataset you wish to query from the list</p>
+                                    </div>
+                                    {{ dataset_form.datasets }} {{ dataset_form.errors }}
+                                    <button class="btn btn-danger" id="dataset_query_button">Get Properties
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
+                                <hr>
+                                <div id="properties_list" class="properties_display">
+                                    {% for fs, props in properties.items %}
+                                        <ul data-filesystem_name="props-{{ fs }}">
+                                                <li><span class="label label-info">File System</span> {{ fs }}
+                                                </li>
+                                                <li><span
+                                                        class="label label-info">Compression</span> {{ props.compression }}
+                                                </li>
+                                                <li><span
+                                                        class="label label-info">Compress Ratio</span> {{ props.compressratio }}
+                                                </li>
+                                                <li><span
+                                                        class="label label-info">Mountpoint</span> {{ props.mountpoint }}
+                                                </li>
+                                                <li><span
+                                                        class="label label-info">ShareNFS</span> {{ props.sharenfs }}
+                                                </li>
+                                                <li><span
+                                                        class="label label-info">ShareSMB</span> {{ props.sharesmb }}
+                                                </li>
+                                        </ul>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -241,6 +285,8 @@
                         $('#create_filesystems_form_row').hide();
                         $('#filesystem_deletion_form_row').hide();
                         $('#show_props_form_row').hide();
+                        $('div#properties_list').children().hide();
+
                         /* if not updating, show the table etc */
                         if (updating != 'true') {
                             $('#updating').hide();
@@ -385,6 +431,17 @@
                                     }
                                 });
                             }
+                        };
+                        /* show filesystem properties */
+                        var currently_shown = null;
+                        /* initiates on page load */
+                        var fs_selected = $('form#dataset_query_form select[name=datasets]').val();
+                        document.getElementById("dataset_query_button").onclick = function () {
+                            currently_shown = fs_selected;
+                            fs_selected = $('form#dataset_query_form select[name=datasets]').val();
+                            $('div#properties_list ul[data-filesystem_name="props-' + currently_shown + '"').hide("slide", {"direction": "left"}, 500, function () {
+                                $('div#properties_list ul[data-filesystem_name="props-' + fs_selected + '"]').show("slide", {"direction": "left"}, 500);
+                            });
                         };
                         /* change file system properties */
                         document.getElementById("change_filesystems").onclick = function () {

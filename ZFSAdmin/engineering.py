@@ -15,8 +15,9 @@ logger = logging.getLogger(__name__)
 
 
 def update_zfs_data():
-    # RETRIEVES THE LATEST ZFS SNAPSHOT DATA & UPDATES MODEL
     process_result = []
+    # RETRIEVES THE LATEST ZFS SNAPSHOT DATA & UPDATES MODEL
+    snapshots = []
     snapshot_result = subprocess.run(
         ['{}static/DefaultConfigFiles/{}'.format(settings.PROJECT_ROOT, settings.SYSTEM_CALL_SCRIPT_NAME),
          'list_snapshots'],
@@ -33,12 +34,15 @@ def update_zfs_data():
         snapshot_data = process_data(stdout_str=snapshot_result.stdout, data_type='snapshots')
         if snapshot_data:
             for snapshot in snapshot_data:
-                process_result.append({'process_result_snapshots': {'task': 'snapshots_task',
-                                                          'datetime_created': snapshot.get('datetime'),
-                                                          'dataset': snapshot.get('dataset'),
-                                                          'retention': snapshot.get('longevity'),
-                                                          'name': snapshot.get('name')}})
+                snapshots.append({'task': 'snapshots_task',
+                                  'datetime_created': snapshot.get('datetime'),
+                                  'dataset': snapshot.get('dataset'),
+                                  'retention': snapshot.get('longevity'),
+                                  'name': snapshot.get('name')})
+            process_result.append(snapshots)
     # RETRIEVES LATEST ZFS FILESYSTEM NAMES DATA
+    properties = ['compression', 'compressratio', 'mountpoint', 'sharenfs', 'sharesmb']
+    datasets = {}
     filesystem_result = subprocess.run(
         ['{}static/DefaultConfigFiles/{}'.format(settings.PROJECT_ROOT, settings.SYSTEM_CALL_SCRIPT_NAME),
          'show_filesystems'],
@@ -55,10 +59,18 @@ def update_zfs_data():
         filesystems = process_data(stdout_str=filesystem_result.stdout, data_type='filesystems')
         if filesystems:
             for fs in filesystems:
-                # TODO: RUN OTHER PROCESSES TO OBTAIN FILESYSTEM PROPERTIES HERE, AND ADD TO THE RETURN DICT
-                process_result.append({'process_result_filesystems': {'task': 'filesystems_task',
-                                                          'filesystem_name': fs.get('filesystem'),
-                                                          'zpool': fs.get('zpool')}})
+                property_dict = {}
+                for p in properties:
+                    properties_result = subprocess.run(
+                        ['{}static/DefaultConfigFiles/{}'.format(settings.PROJECT_ROOT,
+                                                                 settings.SYSTEM_CALL_SCRIPT_NAME),
+                         'get_filesystem_properties', fs.get('filesystem'), p], stdout=subprocess.PIPE,
+                        universal_newlines=True)
+                    if properties_result.stdout:
+                        property_dict[p] = process_data(stdout_str=properties_result.stdout, data_type='properties')
+                datasets[fs.get('filesystem')] = property_dict
+        process_result.append(datasets)
+        logger.error('>>>>>>>' + str(datasets))
     return process_result
 
 
@@ -220,4 +232,7 @@ def process_data(stdout_str=None, submitted_data=None, data_type=None):
                     'compression': submitted_data.get('compression') if submitted_data.get('compression') else 'off',
                     'sharenfs': 'on' if submitted_data.get('sharenfs') else 'off',
                     'quota': '{}G'.format(submitted_data.get('quota')) if submitted_data.get('quota') else 'none'}
+    elif data_type == 'properties':
+        # TODO: any additional filtering?
+        return stdout_str.strip('\n')
     return return_data if return_data else None

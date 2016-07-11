@@ -14,7 +14,7 @@ import ZFSAdmin.engineering as engineering
 import json
 from django.contrib.auth.decorators import user_passes_test
 from django.forms import formset_factory
-from .forms import ManageFileSystems, DatasetDeletion
+from .forms import ManageFileSystems, DatasetForm
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 logger = logging.getLogger(__name__)
@@ -37,6 +37,7 @@ class IndexView(LoginRequiredMixin, generic.View):
         context = {}
         snapshots = []
         filesystems = []
+        properties = {}
         snapshot_datasets = []
         if request.GET.get('task_id'):
             process = request.GET.get('process')
@@ -46,26 +47,27 @@ class IndexView(LoginRequiredMixin, generic.View):
             if process == self.SNAPSHOT_UPDATE_PROCESS:
                 # build the snapshot table ...
                 if task_result:
-                    for result in task_result:
-                        if 'process_result_snapshots' in result:
-                            pr = result.get('process_result_snapshots')
-                            snapshot_datasets.append(pr.get('dataset'))
-                            if request.GET.get('filter') and pr.get('dataset') == request.GET.get('filter'):
-                                snapshots.append({'name': pr.get('name'),
-                                                  'retention': pr.get('retention'),
-                                                  'dataset': pr.get('dataset'),
-                                                  'datetime_created': pr.get('datetime_created')})
-                            elif not request.GET.get('filter') or request.GET.get('filter') == 'all':
-                                snapshots.append({'name': pr.get('name'),
-                                                  'retention': pr.get('retention'),
-                                                  'dataset': pr.get('dataset'),
-                                                  'datetime_created': pr.get('datetime_created')})
-                        if 'process_result_filesystems' in result:
-                            filesystems.append(result.get('process_result_filesystems').get('filesystem_name'))
+                    # snapshot data
+                    for ss in task_result[0]:
+                        snapshot_datasets.append(ss.get('dataset'))
+                        if request.GET.get('filter') and ss.get('dataset') == request.GET.get('filter'):
+                            snapshots.append({'name': ss.get('name'),
+                                              'retention': ss.get('retention'),
+                                              'dataset': ss.get('dataset'),
+                                              'datetime_created': ss.get('datetime_created')})
+                        elif not request.GET.get('filter') or request.GET.get('filter') == 'all':
+                            snapshots.append({'name': ss.get('name'),
+                                              'retention': ss.get('retention'),
+                                              'dataset': ss.get('dataset'),
+                                              'datetime_created': ss.get('datetime_created')})
+                    # filesystem data
+                    for k, v in task_result[1].items():
+                        filesystems.append(k)
                     table = SnapshotTable(snapshots, order_by=("-datetime_created", "-dataset", "-retention"))
                     RequestConfig(request, paginate={'per_page': 25}).configure(table)
                     context['table'] = table
                     context['datasets'] = sorted(set(filesystems))
+                    context['properties'] = task_result[1]
                     # dataset management pane
                     context['formset_forms'] = 5
                     dataset_choices = [(fs, fs) for fs in sorted(set(filesystems))]
@@ -77,8 +79,8 @@ class IndexView(LoginRequiredMixin, generic.View):
                                      'compression_choice': compression,
                                      'initial_compression': 'on',
                                      'initial_dataset': dataset_choices[0][1]})
-                    context['dataset_deletion_form'] = DatasetDeletion(choices=dataset_choices,
-                                                                       initial=dataset_choices[0][1])
+                    context['dataset_form'] = DatasetForm(choices=dataset_choices,
+                                                          initial=dataset_choices[0][1])
                     # render the template
                     return render(request, self.TEMPLATE_NAME, context)
                 else:
@@ -192,7 +194,7 @@ def delete_filesystem(request):
     if request.is_ajax():
         if request.method == 'POST':
             logger.error(request.POST.get('datasets'))
-            form = DatasetDeletion(request.POST, choices=[(request.POST.get('datasets'), request.POST.get('datasets'))])
+            form = DatasetForm(request.POST, choices=[(request.POST.get('datasets'), request.POST.get('datasets'))])
             if form.is_valid():
                 delete_task = async(engineering.delete_filesystem, [form.cleaned_data['datasets']])
                 if delete_task:

@@ -36,6 +36,11 @@ elif [ $1 == 'create_filesystems' ]
 then
     echo $FREEBSDASHBOARD_SYSTEM_PASSWORD | /usr/local/bin/sudo -S \
     /sbin/zfs create -o compression=$3 -o sharenfs=$4 -o quota=$5 $2;
+    if [ ! -z "$6" ]
+    then
+    echo $FREEBSDASHBOARD_SYSTEM_PASSWORD | /usr/local/bin/sudo -S \
+    /sbin/zfs set sharenfs="$6" $2;
+    fi
     /usr/local/bin/sudo -K;
 elif [ $1 == 'delete_filesystem' ]
 then

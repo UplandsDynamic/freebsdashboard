@@ -3,7 +3,7 @@ FreeBSDashboard
 
 #####VERSION
 
-ALPHA 2.2, PROTOTYPE DEMO. NOT FOR PRODUCTION USE!
+ALPHA 2.3, PROTOTYPE DEMO. NOT FOR PRODUCTION USE!
 
 This version just has a ZFS Administration section, with basic functionality.
 
@@ -15,6 +15,8 @@ DESCRIPTION
 -----------
 
 FreeBSDashboard is a web-gui dashboard to administer FreeBSD systems.
+
+It is currently built and tested for use with FreeBSD version 10.x.
 
 The application uses Python 3.5 (in a virtual environment), and is built using
 the Python Django framework and jQuery.

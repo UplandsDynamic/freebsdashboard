@@ -29,6 +29,16 @@ h2 {
     font-size: 1.2em;
 }
 
+h1.small_h1 {
+    font-size: 1em;
+    margin-bottom:1em;
+}
+
+h2.small_h2 {
+    font-size: 0.9em;
+    margin-bottom: 1em;
+}
+
 div.out-of-panel-footer {
     margin: 1em;
 }
@@ -62,6 +72,10 @@ div#updating{
 
 div#existing_filesystems, div#create_filesystem_form_1 {
     overflow: auto;
+}
+
+div.form-info-small {
+    font-size: 0.8em;
 }
 
 .zws-red-alert ul li {

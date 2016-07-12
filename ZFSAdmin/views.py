@@ -14,7 +14,7 @@ import ZFSAdmin.engineering as engineering
 import json
 from django.contrib.auth.decorators import user_passes_test
 from django.forms import formset_factory
-from .forms import ManageFileSystems, DatasetForm
+from .forms import *
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 logger = logging.getLogger(__name__)

@@ -150,20 +150,46 @@
                                     <p>Once you've defined your new filesystem(s), tap the "Create File System(s)"
                                         button at bottom of the form.</p>
                                 </div>
+                            <hr>
                                 {% for form in formset %}
                                     <div class="form_filesystems">
                                         {{ form.datasets }} / {{ form.filesystem }}
                                         <div class="zws-red-alert">{{ form.dataset.errors }}</div>
                                         <div class="zws-red-alert">{{ form.filesystem.errors }}</div>
                                     </div>
-                                    <div class="form_quota" style="margin-bottom:1em;">
-                                        <span class="label label-primary">{{ form.quota.label }}</span> {{ form.quota }}GB {{ form.quota.errors }}
-                                    </div>
-                                    <div class="form_compression" style="margin-bottom:1em;"><span
-                                            class="label label-primary">{{ form.compression.label }}</span> {{ form.compression }} {{ form.compression.errors }}
-                                    </div>
-                                    <div class="form_sharenfs" style="margin-bottom:1em;"><span
-                                            class="label label-primary">{{ form.sharenfs.label }}</span> {{ form.sharenfs }} {{ form.sharenfs.errors }}
+                                    <div class="container-fluid">
+                                        <div class="row">
+                                            <div class="col-xs-6 col-sm-6 col-md-6 col-md-lg-6">
+                                                <div class="form_quota" style="margin-bottom:1em;">
+                                                    <span class="label label-primary">{{ form.quota.label }}</span> {{ form.quota }}GB {{ form.quota.errors }}
+                                                </div>
+                                                <div class="form_compression" style="margin-bottom:1em;"><span
+                                                        class="label label-primary">{{ form.compression.label }}</span> {{ form.compression }} {{ form.compression.errors }}
+                                                </div>
+                                                <div class="form_sharenfs" style="margin-bottom:1em;"><span
+                                                        class="label label-primary">{{ form.sharenfs.label }}</span> {{ form.sharenfs }} {{ form.sharenfs.errors }}
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-6 col-sm-6 col-md-6 col-md-lg-6  alert alert-warning">
+                                                <h1 class="small_h1">Additional Options</h1>
+                                                <div class="nfs-options alert alert-warning">
+                                                    <h2 class="small_h2">NFS options</h2>
+                                                    <div class="form_sharenfs_alldirs "
+                                                         style="margin-bottom:1em;">
+                                                   <span
+                                                           class="label label-primary">{{ form.sharenfs_alldirs.label }}</span> {{ form.sharenfs_alldirs }} {{ form.sharenfs_alldirs.errors }}
+                                                    </div>
+                                                    <div class="form-info-small">Separate multiple network addresses with a
+                                                        pipe, e.g. 192.168.1.0/24|192.168.3.0/24
+                                                    </div>
+                                                    <div class="form_sharenfs_network"
+                                                         style="margin-bottom:1em;">
+                                                   <span
+                                                           class="label label-primary">{{ form.sharenfs_network.label }}</span> {{ form.sharenfs_network }} {{ form.sharenfs_network.errors }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                     <hr>
                                 {% endfor %}
@@ -215,23 +241,23 @@
                                 <div id="properties_list" class="properties_display">
                                     {% for fs, props in properties.items %}
                                         <ul data-filesystem_name="props-{{ fs }}">
-                                                <li><span class="label label-info">File System</span> {{ fs }}
-                                                </li>
-                                                <li><span
-                                                        class="label label-info">Compression</span> {{ props.compression }}
-                                                </li>
-                                                <li><span
-                                                        class="label label-info">Compress Ratio</span> {{ props.compressratio }}
-                                                </li>
-                                                <li><span
-                                                        class="label label-info">Mountpoint</span> {{ props.mountpoint }}
-                                                </li>
-                                                <li><span
-                                                        class="label label-info">ShareNFS</span> {{ props.sharenfs }}
-                                                </li>
-                                                <li><span
-                                                        class="label label-info">ShareSMB</span> {{ props.sharesmb }}
-                                                </li>
+                                            <li><span class="label label-info">File System</span> {{ fs }}
+                                            </li>
+                                            <li><span
+                                                    class="label label-info">Compression</span> {{ props.compression }}
+                                            </li>
+                                            <li><span
+                                                    class="label label-info">Compress Ratio</span> {{ props.compressratio }}
+                                            </li>
+                                            <li><span
+                                                    class="label label-info">Mountpoint</span> {{ props.mountpoint }}
+                                            </li>
+                                            <li><span
+                                                    class="label label-info">ShareNFS</span> {{ props.sharenfs }}
+                                            </li>
+                                            <li><span
+                                                    class="label label-info">ShareSMB</span> {{ props.sharesmb }}
+                                            </li>
                                         </ul>
                                     {% endfor %}
                                 </div>
@@ -568,7 +594,7 @@
                                 new_filesystem.push($('form#create_filesystems_form input[name=form-' + c + '-filesystem]').val());
                             }
                             /* call the dialog */
-                            if (selected_dataset.length > 0 && new_filesystem.length > 0) {
+                            if (selected_dataset.length > 0 && new_filesystem[0].length > 0) {
                                 /* note: set this up for multi-select, even though only allowing single at present */
                                 $.each(selected_dataset, function (index, value) {
                                     if (new_filesystem[index]) {
@@ -613,7 +639,7 @@
                                     $('#filesystem_deletion_form_row').show("slide", {"direction": "right"}, 1000);
                                 });
                             });
-                        }
+                        };
                         document.getElementById("filesystem_props").onclick = function () {
                             $('#create_filesystems_form_row').hide("slide", {"direction": "left"}, 1000, function () {
                                 $('#filesystem_deletion_form_row').hide("slide", {"direction": "right"}, 1000, function () {
@@ -672,6 +698,7 @@
                                         success: function (data, textStatus, jqXHR) {
                                             if (textStatus == 'success') {
                                                 $('#messages').html(FILESYSTEM_CREATE_SUCCESS_MESSAGE);
+                                                $('div#filesystem_management').hide("slide", {"direction": "left"}, 1000);
                                                 TaskUpdateStatusChecker(0, 'filesystem_management', data, true);
                                             } else {
                                                 $('#messages').html(ERROR_MESSAGE + ' : Create file system task failed to initiate!');

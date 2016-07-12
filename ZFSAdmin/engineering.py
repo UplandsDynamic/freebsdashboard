@@ -88,7 +88,8 @@ def create_filesystems(data=None):
                      processed_data.get('name'),
                      processed_data.get('compression'),
                      processed_data.get('sharenfs'),
-                     processed_data.get('quota')],
+                     processed_data.get('quota'),
+                     processed_data.get('sharenfs_options')],
                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
                 if settings.DEBUG:
                     logger.error('STDOUT: {}'.format(result.stdout))
@@ -225,12 +226,21 @@ def process_data(stdout_str=None, submitted_data=None, data_type=None):
                 return_data.append({'filesystem_id': key, 'filesystem': filesystem,
                                     'zpool': filesystem.split('/')[0]})
         elif submitted_data:
+            # process sharenfs options
+            sharenfs_options = ''
+            if submitted_data.get('sharenfs_alldirs'):
+                sharenfs_options += '-alldirs '
+            if submitted_data.get('sharenfs_network'):
+                ips = submitted_data.get('sharenfs_network').strip().split('|')
+                for ip in ips:
+                    sharenfs_options += '-network={} '.format(ip)
             return {'name': '{}/{}'.format(submitted_data['datasets'],
                                            # filesystem filtered to remove leading & trailing slashes, & anything not: A-Za-z0-9-_/
                                            re.sub(r'[^A-Za-z0-9-_/]', '',
                                                   submitted_data.get('filesystem')).strip('/')),
                     'compression': submitted_data.get('compression') if submitted_data.get('compression') else 'off',
                     'sharenfs': 'on' if submitted_data.get('sharenfs') else 'off',
+                    'sharenfs_options': sharenfs_options.strip(),
                     'quota': '{}G'.format(submitted_data.get('quota')) if submitted_data.get('quota') else 'none'}
     elif data_type == 'properties':
         # TODO: any additional filtering?

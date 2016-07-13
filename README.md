@@ -3,7 +3,7 @@ FreeBSDashboard
 
 #####VERSION
 
-ALPHA 2.3, PROTOTYPE DEMO. NOT FOR PRODUCTION USE!
+ALPHA 2.4, PROTOTYPE DEMO. NOT FOR PRODUCTION USE!
 
 This version just has a ZFS Administration section, with basic functionality.
 

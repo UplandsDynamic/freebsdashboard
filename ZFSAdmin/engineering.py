@@ -233,7 +233,12 @@ def process_data(stdout_str=None, submitted_data=None, data_type=None):
             if submitted_data.get('sharenfs_network'):
                 ips = submitted_data.get('sharenfs_network').strip().split('|')
                 for ip in ips:
-                    sharenfs_options += '-network={} '.format(ip)
+                    if len(ip) <= 90:  # limit to 90 characters
+                        sharenfs_options += '-network={} '.format(ip)
+            if submitted_data.get('sharenfs_maproot'):
+                username = submitted_data.get('sharenfs_maproot')
+                if len(username) <= 25:
+                    sharenfs_options += '-maproot={} '.format(username)
             return {'name': '{}/{}'.format(submitted_data['datasets'],
                                            # filesystem filtered to remove leading & trailing slashes, & anything not: A-Za-z0-9-_/
                                            re.sub(r'[^A-Za-z0-9-_/]', '',

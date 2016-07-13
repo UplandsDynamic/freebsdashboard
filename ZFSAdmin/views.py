@@ -227,4 +227,13 @@ def create_filesystem(request):
                     return HttpResponse(str(create_task))
                 else:
                     return HttpResponseServerError
+            else:
+                error_str = ''
+                for e in formset.errors:
+                    for k, v in e.items():
+                        er_str = ''
+                        for er in v:
+                            er_str += '{}, '.format(er)
+                        error_str += '{}, '.format(er_str.strip(', '))
+                return HttpResponse('ERROR: ' + error_str.strip(', '))
     return HttpResponseServerError

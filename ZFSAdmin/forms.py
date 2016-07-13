@@ -20,8 +20,8 @@ class ManageFileSystems(forms.Form):
                               validators=[validate_ips_value],
                               required=False)
     sharenfs_maproot = forms.CharField(widget=forms.TextInput(attrs={'size': 30}),
-                              max_length=50,
-                              help_text='50 characters max.',
+                              max_length=25,
+                              help_text='25 characters max.',
                               validators=[validate_username_value],
                               required=False)
     quota = forms.IntegerField(widget=forms.TextInput(attrs={'required': False, 'size': 5}), initial=0)
@@ -41,6 +41,7 @@ class ManageFileSystems(forms.Form):
         self.fields['sharenfs'].label = "Share with NFS"
         self.fields['sharenfs_alldirs'].label = "-alldirs"
         self.fields['sharenfs_network'].label = "-network"
+        self.fields['sharenfs_maproot'].label = "-maproot"
         self.fields['quota'].label = "File system quota (0 is unlimited)"
         # choice setup
         self.fields['datasets'].choices = dataset_choices

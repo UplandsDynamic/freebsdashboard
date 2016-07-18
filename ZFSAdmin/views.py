@@ -19,6 +19,8 @@ from .forms import *
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 logger = logging.getLogger(__name__)
 
+NUMBER_OF_FORMS_IN_FORMSET = 5
+
 '''SNAPSHOT DISPLAY VIEW'''
 
 
@@ -37,7 +39,6 @@ class IndexView(LoginRequiredMixin, generic.View):
         context = {}
         snapshots = []
         filesystems = []
-        properties = {}
         snapshot_datasets = []
         if request.GET.get('task_id'):
             process = request.GET.get('process')
@@ -60,27 +61,29 @@ class IndexView(LoginRequiredMixin, generic.View):
                                               'retention': ss.get('retention'),
                                               'dataset': ss.get('dataset'),
                                               'datetime_created': ss.get('datetime_created')})
-                    # filesystem data
+                    # file systems & snapshot data
                     for k, v in task_result[1].items():
                         filesystems.append(k)
                     table = SnapshotTable(snapshots, order_by=("-datetime_created", "-dataset", "-retention"))
                     RequestConfig(request, paginate={'per_page': 25}).configure(table)
                     context['table'] = table
+                    # shared panes data
+                    context['formset_forms'] = NUMBER_OF_FORMS_IN_FORMSET
                     context['datasets'] = sorted(set(filesystems))
-                    context['properties'] = task_result[1]
-                    # dataset management pane
-                    context['formset_forms'] = 5
                     dataset_choices = [(fs, fs) for fs in sorted(set(filesystems))]
+                    context['dataset_form'] = DatasetForm(choices=dataset_choices,
+                                                          initial=dataset_choices[0][1])
                     compression = sorted([('on', 'On (default type)'), ('off', 'Off'), ('lzjb', 'lzjb'),
                                           ('gzip', 'gzip'), ('zle', 'zle'), ('lz4', 'lz4')])
+                    # file system properties pane
+                    context['properties'] = task_result[1]
+                    # dataset creation pane
                     new_filesystem_formset = formset_factory(ManageFileSystems, extra=context.get('formset_forms'))
                     context['formset'] = new_filesystem_formset(
                         form_kwargs={'dataset_choices': dataset_choices,
                                      'compression_choice': compression,
                                      'initial_compression': 'on',
                                      'initial_dataset': dataset_choices[0][1]})
-                    context['dataset_form'] = DatasetForm(choices=dataset_choices,
-                                                          initial=dataset_choices[0][1])
                     # render the template
                     return render(request, self.TEMPLATE_NAME, context)
                 else:
@@ -97,7 +100,9 @@ class IndexView(LoginRequiredMixin, generic.View):
 
 @login_required
 def task_checker(request):
+    logger.error(request.GET.get('task_id'))
     task_result = q_result(request.GET.get('task_id'))
+    logger.error(str(task_result))
     error = 'false'
     error_blurb = ''
     if task_result:
@@ -200,21 +205,19 @@ def delete_filesystem(request):
                 if delete_task:
                     return HttpResponse(str(delete_task))
             else:
-                logger.error('here')
                 return HttpResponseServerError
     return HttpResponseServerError
 
 
 @user_passes_test(lambda u: u.is_superuser)
-def create_filesystem(request):
+def manage_filesystem(request):
     user = request.user  # necessary for the @user_passes_test decorator
     if request.is_ajax():
         if request.method == 'POST':
             datasets_chosen = []
             compression_chosen = []
-            logger.error(str(request.POST))
-            new_filesystem_formset = formset_factory(ManageFileSystems, extra=5)
-            for form_num, data in enumerate(request.POST):
+            new_filesystem_formset = formset_factory(ManageFileSystems, extra=NUMBER_OF_FORMS_IN_FORMSET)
+            for form_num in range(NUMBER_OF_FORMS_IN_FORMSET):
                 datasets_chosen.append([request.POST.get('form-{}-datasets'.format(form_num)),
                                         request.POST.get('form-{}-datasets'.format(form_num))])
                 compression_chosen.append([request.POST.get('form-{}-compression'.format(form_num)),
@@ -222,7 +225,11 @@ def create_filesystem(request):
             formset = new_filesystem_formset(request.POST, form_kwargs={'dataset_choices': datasets_chosen,
                                                                         'compression_choice': compression_chosen})
             if formset.is_valid():
-                create_task = async(engineering.create_filesystems, data=formset.cleaned_data)
+                if not formset.cleaned_data[0]['edit_mode']:
+                    # only send 1st form - edit mode only uses 1 instance of formset, rest are obsolete
+                    create_task = async(engineering.create_filesystems, data=formset.cleaned_data)
+                else:
+                    create_task = async(engineering.edit_filesystems, data=formset.cleaned_data[0])
                 if create_task:
                     return HttpResponse(str(create_task))
                 else:
@@ -231,6 +238,7 @@ def create_filesystem(request):
                 error_str = ''
                 for e in formset.errors:
                     for k, v in e.items():
+                        logger.error(k + '>>>' + v)
                         er_str = ''
                         for er in v:
                             er_str += '{}, '.format(er)

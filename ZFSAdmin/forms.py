@@ -25,6 +25,7 @@ class ManageFileSystems(forms.Form):
                               validators=[validate_username_value],
                               required=False)
     quota = forms.IntegerField(widget=forms.TextInput(attrs={'required': False, 'size': 5}), initial=0)
+    edit_mode = forms.BooleanField(widget=forms.HiddenInput(), required=False)
 
     def __init__(self, *args, **kwargs):
         dataset_choices = kwargs.pop('dataset_choices', None)
@@ -50,6 +51,7 @@ class ManageFileSystems(forms.Form):
         self.fields['compression'].initial = compression_initial_value
         self.fields['sharenfs'].initial = sharenfs_choice
         self.fields['sharenfs_alldirs'].initial = sharenfs_alldirs_choice
+        self.fields['edit_mode'].initial = 'false'
 
 
 class DatasetForm(forms.Form):

@@ -127,161 +127,129 @@
             </div>
             <hr>
             <div class="container-fluid">
-                <div class="row" id="create_filesystems_form_row">
-                    <div id="create_filesystem_form" class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
-                        <form role="form" id="create_filesystems_form" action="" method="post"
-                              onsubmit="event.preventDefault();">
-                            <div class="form-group create_filesystem_form">
-                                <h2><span class="glyphicon glyphicon-plus-sign"></span> Create File System(s)
-                                </h2>
+                <div class="row intro">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12"></div>
+                </div>
+                <div class="row form-info-row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
+                        <div class="form_info alert alert-info"></div>
+                    </div>
+                </div>
+                <div class="container-fluid">
+                    <div class="row" id="manage_filesystems_form_row">
+                        <div id="create_filesystem_form" class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
+                            <div class="row properties_dataset_choice">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12 filesystem_choice">
+                                    <div id="dataset_chooser">
+                                        <form action="
+                                                " method="post" id="dataset_query_form" role="form"
+                                              onsubmit="event.preventDefault();">
+                                            {{ dataset_form.non_form_errors }}
+                                            {% csrf_token %}{{ dataset_form.datasets }} {{ dataset_form.errors }}
+                                            <button class="btn btn-info" id="dataset_query_button">Get
+                                                Properties
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <form role="form" id="manage_filesystems_form" action="" method="post"
+                                  onsubmit="event.preventDefault();">
                                 {% for form in formset %}
                                     {{ form.non_form_errors }}
                                 {% endfor %}
                                 {{ formset.non_form_errors }}
                                 {% csrf_token %}
-                                <div class="form_info alert alert-info">
-                                    <p>Enter the new filesystem details here (you have the option of creating 5 at a
-                                        time).</p>
-                                    <p>Select the desired
-                                        parent zpool/dataset from the dropdown menu
-                                        first.</p>
-                                    <p>For example, select "zpool", then enter MyNewFileSystem, or
-                                        MyNewFileSystem/MyNewFileSystemTwo.</p>
-                                    <p>Once you've defined your new filesystem(s), tap the "Create File System(s)"
-                                        button at bottom of the form.</p>
-                                </div>
-                                <hr>
                                 {% for form in formset %}
-                                    <div class="form_filesystems">
+                                    <div id="filesystem_chooser">
                                         {{ form.datasets }} / {{ form.filesystem }}
                                         <div class="zws-red-alert">{{ form.dataset.errors }}</div>
                                         <div class="zws-red-alert">{{ form.filesystem.errors }}</div>
                                     </div>
-                                    <div class="container-fluid">
-                                        <div class="row">
-                                            <div class="col-xs-6 col-sm-6 col-md-6 col-md-lg-6">
-                                                <div class="form_quota" style="margin-bottom:1em;">
-                                                    <span class="label label-primary">{{ form.quota.label }}</span> {{ form.quota }}GB {{ form.quota.errors }}
-                                                </div>
-                                                <div class="form_compression" style="margin-bottom:1em;"><span
-                                                        class="label label-primary">{{ form.compression.label }}</span> {{ form.compression }} {{ form.compression.errors }}
-                                                </div>
-                                                <div class="form_sharenfs" style="margin-bottom:1em;"><span
-                                                        class="label label-primary">{{ form.sharenfs.label }}</span> {{ form.sharenfs }} {{ form.sharenfs.errors }}
+                                    <div class="form-group create_filesystem_form">
+                                        <div class="form_{{ forloop.counter }}">
+                                            <div class="container-fluid">
+                                                <div class="row">
+                                                    <div class="col-xs-6 col-sm-6 col-md-6 col-md-lg-6">
+                                                        <div class="selected_filesystem" style="margin-bottom:1em;">
+                                                            <span class="label label-primary">Selected file system</span>
+                                                            <span id="selected_filesystem_name"></span>
+                                                        </div>
+                                                        <div class="form_quota" style="margin-bottom:1em;">
+                                                            <span class="label label-primary">{{ form.quota.label }}</span> {{ form.quota }}
+                                                            GB {{ form.quota.errors }}
+                                                        </div>
+                                                        <div class="form_compression" style="margin-bottom:1em;"><span
+                                                                class="label label-primary">{{ form.compression.label }}</span> {{ form.compression }} {{ form.compression.errors }}
+                                                            <div id="id_form-{{ forloop.counter0 }}-compressratio"></div>
+                                                        </div>
+                                                        <div class="form_sharenfs" style="margin-bottom:1em;"><span
+                                                                class="label label-primary">{{ form.sharenfs.label }}</span> {{ form.sharenfs }} {{ form.sharenfs.errors }}
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xs-6 col-sm-6 col-md-6 col-md-lg-6 alert alert-warning">
+                                                        <h1 class="small_h1">Additional Options</h1>
+                                                        <div class="nfs-options alert alert-warning">
+                                                            <h2 class="small_h2">NFS options</h2>
+                                                            <div class="form-info-small">Check to set the -alldirs
+                                                                property on the NFS share
+                                                            </div>
+                                                            <div class="form_sharenfs_alldirs "
+                                                                 style="margin-bottom:1em;"><span
+                                                                    class="label label-primary">{{ form.sharenfs_alldirs.label }}</span>
+                                                                {{ form.sharenfs_alldirs }} {{ form.sharenfs_alldirs.errors }}
+                                                            </div>
+                                                            <div class="form-info-small">Separate multiple network
+                                                                addresses with a pipe, e.g.
+                                                                192.168.1.0/24|192.168.3.0/24
+                                                            </div>
+                                                            <div class="form_sharenfs_network"
+                                                                 style="margin-bottom:1em;">
+                                                   <span
+                                                           class="label label-primary">{{ form.sharenfs_network.label }}</span>
+                                                                {{ form.sharenfs_network }} {{ form.sharenfs_network.errors }}
+                                                            </div>
+                                                            <div class="form-info-small">Enter username to set the
+                                                                -maproot option
+                                                            </div>
+                                                            <div class="form_sharenfs_maproot"
+                                                                 style="margin-bottom:1em;">
+                                                                <span class="label label-primary">{{ form.sharenfs_maproot.label }}</span>
+                                                                {{ form.sharenfs_maproot }} {{ form.sharenfs_maproot.errors }}
+                                                            </div>
+                                                            {{ form.edit_mode }}
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="col-xs-6 col-sm-6 col-md-6 col-md-lg-6 alert alert-warning">
-                                                <h1 class="small_h1">Additional Options</h1>
-                                                <div class="nfs-options alert alert-warning">
-                                                    <h2 class="small_h2">NFS options</h2>
-                                                    <div class="form-info-small">Check to set the -alldirs property on
-                                                        the NFS share
-                                                    </div>
-                                                    <div class="form_sharenfs_alldirs "
-                                                         style="margin-bottom:1em;">
-                                                   <span
-                                                           class="label label-primary">{{ form.sharenfs_alldirs.label }}</span> {{ form.sharenfs_alldirs }} {{ form.sharenfs_alldirs.errors }}
-                                                    </div>
-                                                    <div class="form-info-small">Separate multiple network addresses
-                                                        with a
-                                                        pipe, e.g. 192.168.1.0/24|192.168.3.0/24
-                                                    </div>
-                                                    <div class="form_sharenfs_network"
-                                                         style="margin-bottom:1em;">
-                                                   <span
-                                                           class="label label-primary">{{ form.sharenfs_network.label }}</span> {{ form.sharenfs_network }} {{ form.sharenfs_network.errors }}
-                                                    </div>
-                                                    <div class="form-info-small">Enter username to set the -maproot
-                                                        option
-                                                    </div>
-                                                    <div class="form_sharenfs_maproot"
-                                                         style="margin-bottom:1em;">
-                                                   <span
-                                                           class="label label-primary">{{ form.sharenfs_maproot.label }}</span> {{ form.sharenfs_maproot }} {{ form.sharenfs_maproot.errors }}
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            <hr>
                                         </div>
                                     </div>
-                                    <hr>
                                 {% endfor %}
                                 {{ formset.management_form }}
-                                <button class="btn btn-success" id="create_filesystems_button">Create File
+                                <button class="btn btn-success" id="manage_filesystems_button">Create File
                                     System(s)
                                 </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <div class="row" id="filesystem_deletion_form_row">
-                <div id="delete_filesystem_form" class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
-                    <form action="" method="post" id="filesystem_deletion_form" role="form"
-                          onsubmit="event.preventDefault();">
-                        <h2><span class="glyphicon glyphicon-minus-sign"></span> Delete Dataset</h2>
-                        {{ dataset_form.non_form_errors }}
-                        {% csrf_token %}
-                        <div class="form_info alert alert-info">
-                            <p>Select the dataset you wish to delete from the list.</p>
-                        </div>
-                        {{ dataset_form.datasets }} {{ dataset_form.errors }}
-                        <button class="btn btn-danger" id="delete">Delete Selected Dataset</button>
-                    </form>
-                </div>
-            </div>
-            <div class="row" id="show_props_form_row">
-                <div id="show_filesystem_props" class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
-                    <h2><span class="glyphicon glyphicon-question-sign"></span> Show File System Properties</h2>
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
-                                <form action="" method="post" id="dataset_query_form" role="form"
-                                      onsubmit="event.preventDefault();">
-                                    {{ dataset_form.non_form_errors }}
-                                    {% csrf_token %}
-                                    <div class="form_info alert alert-info">
-                                        <p>Select the dataset you wish to query from the list</p>
-                                    </div>
-                                    {{ dataset_form.datasets }} {{ dataset_form.errors }}
-                                    <button class="btn btn-danger" id="dataset_query_button">Get Properties
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
-                                <hr>
-                                <div id="properties_list" class="properties_display">
-                                    {% for fs, props in properties.items %}
-                                        <ul data-filesystem_name="props-{{ fs }}">
-                                            <li><span class="label label-info">File System</span> {{ fs }}
-                                            </li>
-                                            <li><span
-                                                    class="label label-info">Compression</span> {{ props.compression }}
-                                            </li>
-                                            <li><span
-                                                    class="label label-info">Compress Ratio</span> {{ props.compressratio }}
-                                            </li>
-                                            <li><span
-                                                    class="label label-info">Mountpoint</span> {{ props.mountpoint }}
-                                            </li>
-                                            <li><span
-                                                    class="label label-info">ShareNFS</span> {{ props.sharenfs }}
-                                            </li>
-                                            <li><span
-                                                    class="label label-info">ShareSMB</span> {{ props.sharesmb }}
-                                            </li>
-                                        </ul>
-                                    {% endfor %}
-                                </div>
-                            </div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <div class="row" id="filesystem_deletion_form_row">
+        <div id="delete_filesystem_form" class="col-xs-12 col-sm-12 col-md-12 col-md-lg-12">
+            <form action="" method="post" id="filesystem_deletion_form" role="form"
+                  onsubmit="event.preventDefault();">
+                {{ dataset_form.non_form_errors }}
+                {% csrf_token %}
+                {{ dataset_form.datasets }} {{ dataset_form.errors }}
+                <button class="btn btn-danger" id="delete">Delete Selected Dataset</button>
+            </form>
+        </div>
     </div>
     <div id="dialog-confirm"></div>
+
 
 {% endblock %}
 
@@ -295,11 +263,13 @@
                     var INITIATE_SNAPSHSOT_MESSAGE = '<div class="alert alert-warning" role="alert">Initiating snapshotting ...</div>';
                     var INITIATE_CLONE_MESSAGE = '<div class="alert alert-warning" role="alert">Initiating cloning ...</div>';
                     var INITIATE_FILESYSTEMS_CREATE_MESSAGE = '<div class="alert alert-warning" role="alert">Initiating file system creation ...</div>';
+                    var INITIATE_FILESYSTEMS_EDIT_MESSAGE = '<div class="alert alert-warning" role="alert">Initiating file system editing ...</div>';
                     var SNAPSHOT_DELETION_SUCCESS_MESSAGE = '<div class="alert alert-warning" role="alert">Snaphot deletion initiated ...</div>';
                     var SNAPSHOT_CLONE_SUCCESS_MESSAGE = '<div class="alert alert-warning" role="alert">Snaphot cloning initiated ...</div>';
                     var SNAPSHOT_TAKE_SUCCESS_MESSAGE = '<div class="alert alert-warning" role="alert">Snaphot taking initiated ...</div>';
                     var FILESYSTEM_DELETION_SUCCESS_MESSAGE = '<div class="alert alert-warning" role="alert">File system deletion initiated ...</div>';
                     var FILESYSTEM_CREATE_SUCCESS_MESSAGE = '<div class="alert alert-warning" role="alert">File system creation initiated ...</div>';
+                    var FILESYSTEM_EDIT_SUCCESS_MESSAGE = '<div class="alert alert-warning" role="alert">File system editing commenced ...</div>';
                     var STATUS_BAR_MESSAGE = 'Updating ... please wait ... patience is a virtue!';
                     var SNAPSHOT_DELETION_DIALOG_TITLE = 'Confirm that you wish to delete the following:';
                     var SNAPSHOT_CLONE_DIALOG_TITLE = 'Confirm that you wish to clone the following:';
@@ -307,7 +277,7 @@
                     var FILESYSTEM_DELETION_DIALOG_TITLE = "The following file system and ALL OF IT'S DESCENDENT " +
                             "FILESYSTEMS AND SNAPSHOTS will be permanently destroyed! " +
                             "Is that really what you want? 'Cause that's what'll happen!";
-                    var FILESYSTEM_CREATION_DIALOG_TITLE = "The following file systems will be created. Is this okay?";
+                    var FILESYSTEM_CHOSEN_DIALOG_TITLE = "The following file system names have been selected. Is this okay?";
 
                     function init() {
                         /* initial state */
@@ -320,10 +290,12 @@
                         $('#button_div').hide();
                         $('#main_buttons').hide();
                         $('#filesystem_management').hide();
-                        $('#create_filesystems_form_row').hide();
+                        $('#manage_filesystems_form_row').hide();
                         $('#filesystem_deletion_form_row').hide();
                         $('#show_props_form_row').hide();
                         $('div#properties_list').children().hide();
+                        $('div#filesystem_chooser').hide();
+                        $('div#dataset_chooser').hide();
 
                         /* if not updating, show the table etc */
                         if (updating != 'true') {
@@ -413,6 +385,9 @@
 
                     /* button listeners */
                     function ButtonListener() {
+
+                        var form_count = parseInt('{{ formset_forms }}');
+
                         /* display existing snapshots */
                         document.getElementById("display_snapshots_button").onclick = function () {
                             $('#filesystem_management').hide("slide", {"direction": "left"}, 1000, function () {
@@ -470,23 +445,13 @@
                                 });
                             }
                         };
-                        /* show filesystem properties */
-                        var currently_shown = null;
-                        /* initiates on page load */
-                        var fs_selected = $('form#dataset_query_form select[name=datasets]').val();
-                        document.getElementById("dataset_query_button").onclick = function () {
-                            currently_shown = fs_selected;
-                            fs_selected = $('form#dataset_query_form select[name=datasets]').val();
-                            $('div#properties_list ul[data-filesystem_name="props-' + currently_shown + '"').hide("slide", {"direction": "left"}, 500, function () {
-                                $('div#properties_list ul[data-filesystem_name="props-' + fs_selected + '"]').show("slide", {"direction": "left"}, 500);
-                            });
-                        };
                         /* change file system properties */
                         document.getElementById("change_filesystems").onclick = function () {
                             $('#take_snapshot_view').hide("slide", {"direction": "left"}, 1000, function () {
                                 $('#snapshot_table').hide("slide", {"direction": "left"}, 1000, function () {
                                     $('#button_div').hide("slide", {"direction": "right"}, 1000, function () {
                                         $('#filesystem_management').show("slide", {"direction": "left"}, 1000);
+                                        $('div.form_info').html('<p>Select a function from the toolbar above</p>');
                                     });
                                 });
                             });
@@ -595,68 +560,134 @@
                                 });
                             }
                         };
-                        document.getElementById("create_filesystems_button").onclick = function () {
-                            var form_count = parseInt('{{ formset_forms }}');
+                        document.getElementById("manage_filesystems_button").onclick = function () {
                             var selected_dataset = [];
                             var new_filesystem = [];
                             var selected_dataset_list_html = '';
-                            for (var c = 0; c < form_count; c++) {
-                                selected_dataset.push($('form#create_filesystems_form select[name=form-' + c + '-datasets]').val());
-                                new_filesystem.push($('form#create_filesystems_form input[name=form-' + c + '-filesystem]').val());
+                            /* if create (not edit mode) */
+                            if (!$('button#manage_filesystems_button').hasClass('filesystem_edit')) {
+                                for (var c = 0; c < form_count; c++) {
+                                    selected_dataset.push($('form#manage_filesystems_form select[name=form-' + c + '-datasets]').val());
+                                    new_filesystem.push($('form#manage_filesystems_form input[name=form-' + c + '-filesystem]').val());
+                                }
+                            } else {
+                                /* if edit mode */
+                                selected_dataset.push($('div.form_1 span#selected_filesystem_name').text());
                             }
-                            /* call the dialog */
-                            if (selected_dataset.length > 0 && new_filesystem[0].length > 0) {
-                                /* note: set this up for multi-select, even though only allowing single at present */
-                                $.each(selected_dataset, function (index, value) {
-                                    if (new_filesystem[index]) {
-                                        selected_dataset_list_html += '<li>' + value + '/' + new_filesystem[index] + '</li>';
-                                    }
-                                });
-                                $("#dialog-confirm").html("<div class=\"alert alert-success\"><strong>"
-                                        + FILESYSTEM_CREATION_DIALOG_TITLE + "</strong></div>"
-                                        + "<ul>" + selected_dataset_list_html + "</ul>");
-                                // Define the Dialog and its properties.
-                                $("#dialog-confirm").dialog({
-                                    dialogClass: 'no-close',
-                                    resizable: true,
-                                    modal: true,
-                                    title: "Are you really sure?!",
-                                    height: 600,
-                                    width: 800,
-                                    hide: {effect: "fade", duration: 500},
-                                    buttons: {
-                                        "Yes, create!": function () {
-                                            $(this).dialog('close');
-                                            filesystem_create_dialog_callback(true);
-                                        },
-                                        "No, do not proceed": function () {
-                                            $(this).dialog('close');
-                                            filesystem_create_dialog_callback(false);
+                            if (selected_dataset[0].length > 0) {
+                                if (new_filesystem.length > 0) {
+                                    /* new file system entered - create mode */
+                                    /* note: set this up for multi-select, even though only allowing single at present */
+                                    $.each(selected_dataset, function (index, value) {
+                                        if (new_filesystem[index]) {
+                                            selected_dataset_list_html += '<li>' + value + '/' + new_filesystem[index] + '</li>';
                                         }
-                                    }
-                                });
+                                    });
+                                } else {
+                                    /* edit mode */
+                                    $.each(selected_dataset, function (index, value) {
+                                        selected_dataset_list_html += '<li>' + value + '</li>';
+                                    });
+                                }
+                                if (selected_dataset_list_html != '') {
+                                    $("#dialog-confirm").html("<div class=\"alert alert-success\"><strong>"
+                                            + FILESYSTEM_CHOSEN_DIALOG_TITLE + "</strong></div>"
+                                            + "<ul>" + selected_dataset_list_html + "</ul>");
+                                    // Define the Dialog and its properties.
+                                    $("#dialog-confirm").dialog({
+                                        dialogClass: 'no-close',
+                                        resizable: true,
+                                        modal: true,
+                                        title: "Are you really sure?!",
+                                        height: 600,
+                                        width: 800,
+                                        hide: {effect: "fade", duration: 500},
+                                        buttons: {
+                                            "Yes, proceed!": function () {
+                                                $(this).dialog('close');
+                                                filesystem_manage_dialog_callback(true);
+                                            },
+                                            "No, do not proceed": function () {
+                                                $(this).dialog('close');
+                                                filesystem_manage_dialog_callback(false);
+                                            }
+                                        }
+                                    });
+                                }
                             }
                         };
+
                         document.getElementById("create_filesystems").onclick = function () {
-                            $('#filesystem_deletion_form_row').hide("slide", {"direction": "right"}, 1000, function () {
-                                $('#show_props_form_row').hide("slide", {"direction": "left"}, 1000, function () {
-                                    $('#create_filesystems_form_row').show("slide", {"direction": "left"}, 1000);
-                                });
-                            });
+                            document.getElementById('manage_filesystems_form').reset();
+                            for (var c = 1; c <= form_count; c++) {
+                                $('div.form_' + c.toString()).show();
+                                $('#id_form-' + (c - 1).toString() + '-edit_mode').val(false);
+                            }
+                            $('div.selected_filesystem').hide();
+                            $('#filesystem_deletion_form_row').hide();
+                            $('#manage_filesystems_form_row').show();
+                            $('div.form_filesystems').show();
+                            $('div#dataset_chooser').hide();
+                            $('div#filesystem_chooser').show();
+                            $('div.intro').html('<h2><span class="glyphicon glyphicon-plus-sign"></span> Create File System(s)</h2>');
+                            $('div.form_info').html('<p>Enter the new filesystem details here (you have the option of creating 5 at a time).</p>' +
+                                    '<p>Select the desired parent zpool/dataset from the dropdown menu first.</p>' +
+                                    '<p>For example, select "zpool", then enter MyNewFileSystem, or MyNewFileSystem/MyNewFileSystemTwo.</p>' +
+                                    '<p>Once you have defined your new filesystem(s), tap the "Create File System(s)" button at bottom of the form.</p>');
+                            $('button#manage_filesystems_button').html('Create File System(s)').removeClass("filesystem_edit");
+
                         };
                         document.getElementById("delete_filesystems").onclick = function () {
-                            $('#show_props_form_row').hide("slide", {"direction": "left"}, 1000, function () {
-                                $('#create_filesystems_form_row').hide("slide", {"direction": "left"}, 1000, function () {
-                                    $('#filesystem_deletion_form_row').show("slide", {"direction": "right"}, 1000);
-                                });
-                            });
+                            $('#manage_filesystems_form_row').hide();
+                            $('#filesystem_deletion_form_row').show();
+                            $('div#dataset_chooser').hide();
+                            $('div#filesystem_chooser').hide();
+                            $('div.intro').html('<h2><span class="glyphicon glyphicon-minus-sign"></span> Delete File System(s)</h2>');
+                            $('div.form_info').html('<p>Select the dataset you wish to delete from the list</p>');
                         };
                         document.getElementById("filesystem_props").onclick = function () {
-                            $('#create_filesystems_form_row').hide("slide", {"direction": "left"}, 1000, function () {
-                                $('#filesystem_deletion_form_row').hide("slide", {"direction": "right"}, 1000, function () {
-                                    $('#show_props_form_row').show("slide", {"direction": "left"}, 1000);
-                                });
-                            });
+                            document.getElementById('manage_filesystems_form').reset();
+                            for (var c = 1; c <= form_count; c++) {
+                                if (c != 1) {
+                                    $('div.form_' + c.toString()).hide();
+                                }
+                            }
+                            $('div.selected_filesystem').show();
+                            $('#filesystem_deletion_form_row').hide();
+                            $('#manage_filesystems_form_row').show();
+                            $('div.form_filesystems').hide();
+                            $('div#dataset_chooser').show();
+                            $('div#filesystem_chooser').hide();
+                            $('div.intro').html('<h2><span class="glyphicon glyphicon-question-sign"></span> Modify File System Properties(s)</h2>');
+                            $('div.form_info').html('<p>Select the dataset you wish to query from the list</p>');
+                            $('button#manage_filesystems_button').html('Edit File System Properties').addClass("filesystem_edit");
+                        };
+                        document.getElementById("dataset_query_button").onclick = function () {
+                            /* initiates on page load */
+                            var fs_selected = $('form#dataset_query_form select[name=datasets]').val();
+                            {% for fs, props in properties.items %}
+                                if ('{{ fs }}' == fs_selected) {
+                                    $('span#selected_filesystem_name').html(fs_selected);
+                                    /* set the selected dataset for the hidden (in edit mode) id_form-0-datasets field */
+                                    $('#id_form-0-datasets').val(fs_selected);
+                                    $('#id_form-0-compression').val('{{ props.compression.value }}');
+                                    $('#id_form-0-quota').val('{{ props.quota.value }}');
+                                    $('#id_form-0-edit_mode').val(true);
+                                    $('#id_form-0-compressratio').html('<span class="label label-primary">Compress ratio</span> {{ props.compressratio.value }}');
+                                    if ('{{ props.sharenfs.value.sharenfs }}' == 'true') {
+                                        $('#id_form-0-sharenfs').prop('checked', true);
+                                    } else {
+                                        $('#id_form-0-sharenfs').prop('checked', false);
+                                    }
+                                    if ('{{ props.sharenfs.value.alldirs }}' == 'true') {
+                                        $('#id_form-0-sharenfs_alldirs').prop('checked', true);
+                                    } else {
+                                        $('#id_form-0-sharenfs_alldirs').prop('checked', false);
+                                    }
+                                    $('#id_form-0-sharenfs_network').val('{{ props.sharenfs.value.network }}');
+                                    $('#id_form-0-sharenfs_maproot').val('{{ props.sharenfs.value.maproot }}');
+                                }
+                            {% endfor %}
                         }
                     }
 
@@ -696,13 +727,27 @@
                         }
                     }
 
-                    function filesystem_create_dialog_callback(value) {
+                    function filesystem_manage_dialog_callback(value) {
                         if (value) {
-                            $('#messages').html(INITIATE_FILESYSTEMS_CREATE_MESSAGE);
-                            var postData = $('form#create_filesystems_form').serializeArray();
+                            var initiateMessage;
+                            var successMessage;
+                            var url = "{% url 'ZFSAdmin:manage_filesystem' %}";
+                            if (!$('button#manage_filesystems_button').hasClass('filesystem_edit')) {
+                                /* create mode */
+                                initiateMessage = INITIATE_FILESYSTEMS_CREATE_MESSAGE;
+                                successMessage = FILESYSTEM_CREATE_SUCCESS_MESSAGE;
+                            } else {
+                                /* edit mode */
+                                initiateMessage = INITIATE_FILESYSTEMS_EDIT_MESSAGE;
+                                successMessage = FILESYSTEM_EDIT_SUCCESS_MESSAGE;
+                            }
+                            $('#messages').html(initiateMessage);
+
+
+                            var postData = $('form#manage_filesystems_form').serializeArray();
                             $.ajax(
                                     {
-                                        url: "{% url 'ZFSAdmin:create_filesystem' %}",
+                                        url: url,
                                         headers: {"X-CSRFToken": '{{ csrf_token }}'},
                                         type: "POST",
                                         data: postData,
@@ -716,7 +761,7 @@
                                                     $('#messages').html('<div class="alert alert-danger" style="margin-bottom:1em;">' + data + '</div>');
                                                 }
                                                 else {
-                                                    $('#messages').html(FILESYSTEM_CREATE_SUCCESS_MESSAGE);
+                                                    $('#messages').html(successMessage);
                                                     $('div#filesystem_management').hide("slide", {"direction": "left"}, 1000);
                                                     TaskUpdateStatusChecker(0, 'filesystem_management', data, true);
                                                 }
@@ -729,6 +774,10 @@
                                         },
                                         error: function (jqXHR, textStatus, errorThrown) {
                                             $('#messages').html(ERROR_MESSAGE);
+                                            $('html,body').animate({
+                                                        scrollTop: $('body').offset().top
+                                                    },
+                                                    'slow');
                                             setTimeout(function () {
                                                 window.location.replace("{% url 'ZFSAdmin:index' %}");
                                             }, 5000);
@@ -846,6 +895,7 @@
                     /* RUN THE SCRIPTS */
                     init();
                 }
-        );
+        )
+        ;
     </script>
 {% endblock %}

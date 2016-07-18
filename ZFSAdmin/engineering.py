@@ -40,8 +40,8 @@ def update_zfs_data():
                                   'retention': snapshot.get('longevity'),
                                   'name': snapshot.get('name')})
             process_result.append(snapshots)
-    # RETRIEVES LATEST ZFS FILESYSTEM NAMES DATA
-    properties = ['compression', 'compressratio', 'mountpoint', 'sharenfs', 'sharesmb']
+    # RETRIEVES LATEST ZFS FILESYSTEM DATA
+    properties = ['compression', 'compressratio', 'mountpoint', 'sharenfs', 'sharesmb', 'quota']
     datasets = {}
     filesystem_result = subprocess.run(
         ['{}static/DefaultConfigFiles/{}'.format(settings.PROJECT_ROOT, settings.SYSTEM_CALL_SCRIPT_NAME),
@@ -67,10 +67,12 @@ def update_zfs_data():
                          'get_filesystem_properties', fs.get('filesystem'), p], stdout=subprocess.PIPE,
                         universal_newlines=True)
                     if properties_result.stdout:
-                        property_dict[p] = process_data(stdout_str=properties_result.stdout, data_type='properties')
+                        property_dict[p] = process_data(stdout_str=properties_result.stdout,
+                                                        data_type='properties',
+                                                        prop=p)
                 datasets[fs.get('filesystem')] = property_dict
+                logger.error(str(property_dict))
         process_result.append(datasets)
-        logger.error('>>>>>>>' + str(datasets))
     return process_result
 
 
@@ -101,6 +103,40 @@ def create_filesystems(data=None):
                     process_result.append({'error': result.stderr})
                 else:
                     process_result.append({'success': result.stdout})
+    else:
+        process_result.append({'error': 'No file system names were passed for creating!'})
+    return process_result
+
+
+def edit_filesystems(data=None):
+    # CREATES ZFS FILESYSTEMS
+    process_result = []
+    if data.get('edit_mode'):
+        # process submitted formset data
+        processed_data = process_data(submitted_data=data, data_type="filesystems")
+
+        result = subprocess.run(
+            ['{}static/DefaultConfigFiles/{}'.format(settings.PROJECT_ROOT, settings.SYSTEM_CALL_SCRIPT_NAME),
+             'edit_filesystem',
+             processed_data.get('name'),
+             processed_data.get('sharenfs'),
+             processed_data.get('sharenfs_options'),
+             processed_data.get('compression'),
+             processed_data.get('quota')],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+
+        logger.error('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' + str(result.stdout))
+
+        if settings.DEBUG:
+            logger.error('STDOUT: {}'.format(result.stdout))
+            logger.error('STDERR: {}'.format(result.stderr))
+        if not result:
+            process_result.append({'error': 'No filesystems were edited; '
+                                            'there was an error initialising the process'})
+        elif result.stderr:
+            process_result.append({'error': result.stderr})
+        else:
+            process_result.append({'success': result.stdout})
     else:
         process_result.append({'error': 'No file system names were passed for creating!'})
     return process_result
@@ -192,7 +228,7 @@ def clone_snapshots(snapshots=None):
 ''' Debug dev note: strptime = str to datetime, strftime = datetime to string '''
 
 
-def process_data(stdout_str=None, submitted_data=None, data_type=None):
+def process_data(stdout_str=None, submitted_data=None, data_type=None, prop=None):
     # parses the STDOUT strings, extracts the relevant data & returns list of dicts
     return_data = []
     if data_type == 'snapshots':
@@ -242,12 +278,40 @@ def process_data(stdout_str=None, submitted_data=None, data_type=None):
             return {'name': '{}/{}'.format(submitted_data['datasets'],
                                            # filesystem filtered to remove leading & trailing slashes, & anything not: A-Za-z0-9-_/
                                            re.sub(r'[^A-Za-z0-9-_/]', '',
-                                                  submitted_data.get('filesystem')).strip('/')),
+                                                  submitted_data.get('filesystem'))).strip('/'),
                     'compression': submitted_data.get('compression') if submitted_data.get('compression') else 'off',
                     'sharenfs': 'on' if submitted_data.get('sharenfs') else 'off',
                     'sharenfs_options': sharenfs_options.strip(),
                     'quota': '{}G'.format(submitted_data.get('quota')) if submitted_data.get('quota') else 'none'}
     elif data_type == 'properties':
-        # TODO: any additional filtering?
-        return stdout_str.strip('\n')
+        data = {}
+        opt = stdout_str.strip('\n')
+        # additional filtering
+        if prop == 'sharenfs':
+            value_dict = {}
+            opt_list = opt.split()
+            network_str = ''
+            for o in opt_list:
+                holder = o.split('=')
+                if holder[0] == '-alldirs':
+                    value_dict['alldirs'] = 'true'
+                if holder[0] == '-maproot':
+                    value_dict['maproot'] = holder[1]
+                if holder[0] == '-network':  # special case, may be multiple values, so join them as a str
+                    network_str += '{}|'.format(holder[1])
+                if holder[0] != 'off':
+                    value_dict['sharenfs'] = 'true'
+                if holder[0] == 'off':
+                    value_dict['sharenfs'] = 'false'
+            value_dict['network'] = network_str.strip('|')
+            data['value'] = value_dict
+        elif prop == 'quota':
+            if opt != 'none':
+                data['value'] = int(re.sub('[^0-9]', '', opt))
+            else:
+                data['value'] = '0'
+        # default (no additonal filering)
+        else:
+            data['value'] = opt
+        return data
     return return_data if return_data else None

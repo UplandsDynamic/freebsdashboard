@@ -42,6 +42,22 @@ then
     /sbin/zfs set sharenfs="$6" $2;
     fi
     /usr/local/bin/sudo -K;
+elif [ $1 == 'edit_filesystem' ]
+then
+    echo $FREEBSDASHBOARD_SYSTEM_PASSWORD | /usr/local/bin/sudo -S \
+    /sbin/zfs set sharenfs="$3" $2;
+    if [ ! -z "$4" ]
+    then
+    echo $FREEBSDASHBOARD_SYSTEM_PASSWORD | /usr/local/bin/sudo -S \
+    /sbin/zfs set sharenfs="$4" $2;
+    fi
+    echo $FREEBSDASHBOARD_SYSTEM_PASSWORD | /usr/local/bin/sudo -S \
+    /sbin/zfs set compression="$5" $2;
+    echo $FREEBSDASHBOARD_SYSTEM_PASSWORD | /usr/local/bin/sudo -S \
+    /sbin/zfs set quota="$6" $2;
+
+
+
 elif [ $1 == 'delete_filesystem' ]
 then
     echo $FREEBSDASHBOARD_SYSTEM_PASSWORD | /usr/local/bin/sudo -S \

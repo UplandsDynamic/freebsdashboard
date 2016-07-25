@@ -1,6 +1,13 @@
 FreeBSDashboard
 ---------------
 
+###UPDATE 25 JULY 2016
+
+Development suspended due to lack of interest.
+
+If you found this useful and would like to see development resumed in future,
+please get in touch, either through github or email: dan@aninstanceofme.com
+
 #####VERSION
 
 ALPHA 2.5, PROTOTYPE DEMO. NOT FOR PRODUCTION USE!

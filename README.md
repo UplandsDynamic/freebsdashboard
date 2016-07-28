@@ -40,7 +40,7 @@ to system configuration files would not be overwritten by the application (and v
 DEMO
 -----------
 
-To test the gui dashboard without installation, try the live prototype demo at:
+To test the gui dashboard try the live prototype demo running on a FreeBSD test server at:
 
 https://freebsdashboard.aninstanceofme.com:8443
 

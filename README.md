@@ -40,9 +40,9 @@ to system configuration files would not be overwritten by the application (and v
 DEMO
 -----------
 
-To test the gui dashboard try the live prototype demo running on a FreeBSD test server at:
-
-https://freebsdashboard.aninstanceofme.com:8443
+The demo site was removed following suspension of this project. However, if you'd like to 
+test the gui dashboard by trying the live prototype demo running on a FreeBSD test server, 
+please get in touch and an instance will be spun up for your viewing pleasure!
 
 POINTS OF CONTACT
 -----------------
